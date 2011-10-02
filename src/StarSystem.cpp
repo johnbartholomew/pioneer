@@ -5,6 +5,7 @@
 #include <map>
 #include "utils.h"
 #include "Lang.h"
+#include "StringF.h"
 
 #define CELSIUS	273.15
 //#define DEBUG_DUMP
@@ -1844,7 +1845,7 @@ void SBody::PopulateAddStations(StarSystem *system)
 		sp->rotationPeriod = fixed(1,3600);
 		sp->averageTemp = this->averageTemp;
 		sp->mass = 0;
-		sp->name = NameGenerator::Surname(rand) + Lang::SOMEWHERE_SPACEPORT;
+		sp->name = stringf(Lang::SOMEWHERE_SPACEPORT, formatarg("spaceport", NameGenerator::Surname(rand)));
 		/* just always plonk starports in near orbit */
 		sp->semiMajorAxis = orbMinS;
 		sp->eccentricity = fixed(0);
@@ -1865,7 +1866,7 @@ void SBody::PopulateAddStations(StarSystem *system)
 			*sp2 = *sp;
 			sp2->id = id2;
 			sp2->orbit.rotMatrix = matrix4x4d::RotateZMatrix(M_PI);
-			sp2->name = NameGenerator::Surname(rand) + Lang::SOMEWHERE_SPACEPORT;
+			sp2->name = stringf(Lang::SOMEWHERE_SPACEPORT, formatarg("spaceport", NameGenerator::Surname(rand)));
 			children.insert(children.begin(), sp2);
 			system->m_spaceStations.push_back(sp2);
 		}
@@ -1884,7 +1885,7 @@ void SBody::PopulateAddStations(StarSystem *system)
 		sp->parent = this;
 		sp->averageTemp = this->averageTemp;
 		sp->mass = 0;
-		sp->name = NameGenerator::Surname(rand) + Lang::SOMEWHERE_STARPORT;
+		sp->name = stringf(Lang::SOMEWHERE_STARPORT, formatarg("starport", NameGenerator::Surname(rand)));
 		memset(&sp->orbit, 0, sizeof(Orbit));
 		position_settlement_on_planet(sp);
 		children.insert(children.begin(), sp);

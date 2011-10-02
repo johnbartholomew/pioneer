@@ -11,26 +11,28 @@
 
 class InfoViewPage: public Gui::Fixed {
 public:
-	InfoViewPage(): Gui::Fixed(800, 500) {}
+	InfoViewPage(InfoView *v): Gui::Fixed(800, 500), m_infoView(v) {}
 	virtual void UpdateInfo() = 0;
+
+protected:
+	InfoView *m_infoView;
 };
 
 class MissionPage: public InfoViewPage {
 public:
-	MissionPage() {
-	};
+	MissionPage(InfoView *v) : InfoViewPage(v) {};
 
 	virtual void Show() {
 		UpdateInfo();
 		InfoViewPage::Show();
-		if (Pi::infoView) Pi::infoView->HideSpinner();
+		m_infoView->HideSpinner();
 	}
 
 	virtual ~MissionPage() {
 	}
 
 	virtual void UpdateInfo() {
-		const float YSEP = Gui::Screen::GetFontHeight() * 1.5;
+		const float YSEP = Gui::Screen::GetFontHeight() * 1.5f;
 		DeleteAllChildren();
 
 		Gui::Label *l = new Gui::Label(Lang::MISSIONS);
@@ -75,7 +77,7 @@ public:
 			l = new Gui::Label((*i)->client);
 			innerbox->Add(l, 80, ypos);
 			
-			l = new Gui::Label(stringf_old(256, "%s,\n%s [%d,%d,%d]", sbody->name.c_str(), s->GetName().c_str(), path.sectorX, path.sectorY, path.sectorZ));
+			l = new Gui::Label(stringf("%0,\n%1 [%2{d},%3{d},%4{d}]", sbody->name.c_str(), s->GetName().c_str(), path.sectorX, path.sectorY, path.sectorZ));
 			innerbox->Add(l, 240, ypos);
 			
 			l = new Gui::Label(format_date((*i)->due));
@@ -104,16 +106,15 @@ public:
 
 class CargoPage: public InfoViewPage {
 public:
-	CargoPage() {
-	};
+	CargoPage(InfoView *v) : InfoViewPage(v) {};
 
 	virtual void Show() {
 		InfoViewPage::Show();
-		if (Pi::infoView) Pi::infoView->ShowSpinner();
+		m_infoView->ShowSpinner();
 	}
 
 	virtual void UpdateInfo() {
-		const float YSEP = Gui::Screen::GetFontHeight() * 1.5;
+		const float YSEP = Gui::Screen::GetFontHeight() * 1.5f;
 		DeleteAllChildren();
 		Add(new Gui::Label(Lang::CARGO_INVENTORY), 40, 40);
 		Add(new Gui::Label(Lang::JETTISON), 40, 40+YSEP*2);
@@ -136,26 +137,25 @@ public:
 private:
 	void JettisonCargo(Equip::Type t) {
 		if (Pi::player->Jettison(t)) {
-			Pi::cpan->MsgLog()->Message("", std::string(Lang::JETTISONED)+EquipType::types[t].name);
-			Pi::infoView->UpdateInfo();
+			Pi::cpan->MsgLog()->Message("", stringf(Lang::JETTISONED_1T_OF_X, formatarg("commodity", EquipType::types[t].name)));
+			m_infoView->UpdateInfo();
 		}
 	}
 };
 
 class PersonalPage: public InfoViewPage {
 public:
-	PersonalPage() {
-	};
+	PersonalPage(InfoView *v) : InfoViewPage(v) {};
 
 	virtual void Show() {
 		InfoViewPage::Show();
-		if (Pi::infoView) Pi::infoView->ShowSpinner();
+		m_infoView->ShowSpinner();
 	}
 
 	virtual void UpdateInfo() {
 		Sint64 crime, fine;
 		Polit::GetCrime(&crime, &fine);
-		const float YSEP = Gui::Screen::GetFontHeight() * 1.5;
+		const float YSEP = Gui::Screen::GetFontHeight() * 1.5f;
 		DeleteAllChildren();
 
 		float ypos = 40.0f;
@@ -176,7 +176,7 @@ public:
 
 class ShipInfoPage: public InfoViewPage {
 public:
-	ShipInfoPage() {
+	ShipInfoPage(InfoView *v) : InfoViewPage(v) {
 		info1 = new Gui::Label("");
 		info2 = new Gui::Label("");
 		Add(info1, 40, 40);
@@ -186,7 +186,7 @@ public:
 
 	virtual void Show() {
 		InfoViewPage::Show();
-		if (Pi::infoView) Pi::infoView->ShowSpinner();
+		m_infoView->ShowSpinner();
 	}
 
 	virtual void UpdateInfo() {
@@ -253,9 +253,9 @@ public:
 			if ((s == Equip::SLOT_MISSILE) || (s == Equip::SLOT_ENGINE) || (s == Equip::SLOT_LASER)) continue;
 			int num = Pi::player->m_equipment.Count(s, t);
 			if (num == 1) {
-				col1 += stringf_old(128, "%s\n", EquipType::types[t].name);
+				col1 += stringf("%0\n", EquipType::types[t].name);
 			} else if (num > 1) {
-				col1 += stringf_old(128, "%d %ss\n", num, EquipType::types[t].name);
+				col1 += stringf("%0{d} %1s\n", num, EquipType::types[t].name);
 			}
 		}
 
@@ -274,19 +274,19 @@ InfoView::InfoView(): View(),
 
 	m_tabs = new Gui::Tabbed();
 
-	InfoViewPage *page = new ShipInfoPage();
+	InfoViewPage *page = new ShipInfoPage(this);
 	m_pages.push_back(page);
 	m_tabs->AddPage(new Gui::Label(Lang::SHIP_INFORMATION), page);
 
-	page = new PersonalPage();
+	page = new PersonalPage(this);
 	m_pages.push_back(page);
 	m_tabs->AddPage(new Gui::Label(Lang::REPUTATION), page);
 	
-	page = new CargoPage();
+	page = new CargoPage(this);
 	m_pages.push_back(page);
 	m_tabs->AddPage(new Gui::Label(Lang::CARGO), page);
 	
-	page = new MissionPage();
+	page = new MissionPage(this);
 	m_pages.push_back(page);
 	m_tabs->AddPage(new Gui::Label(Lang::MISSIONS), page);
 	

@@ -56,7 +56,7 @@ local earth = CustomSBody:new('Earth', 'PLANET_TERRESTRIAL')
 	:atmos_density(f(1,1))
 	:atmos_oxidizing(f(99,100))
 	:ocean_cover(f(7,10))
-	:ice_cover(f(7,10))
+	:ice_cover(f(5,10))
 	:life(f(9,10))
 
 local earth_starports = {
@@ -387,6 +387,7 @@ local neptune_moons = {
 			:rotation_period(f(11,7)),
 	},
 	CustomSBody:new('Nereid', 'PLANET_ASTEROID')
+		:radius(f(2668,100000))
 		:mass(f(519,1000))
 		:temp(50)
 		:semi_major_axis(f(3685,100000))

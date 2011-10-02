@@ -1,5 +1,6 @@
 #include "LuaPlayer.h"
 #include "LuaSystemPath.h"
+#include "LuaBody.h"
 #include "LuaUtils.h"
 #include "LuaConstants.h"
 #include "Player.h"
@@ -397,6 +398,116 @@ static int l_player_add_crime(lua_State *l)
 	return 0;
 }
 
+/*
+ * Method: GetNavTarget
+ *
+ * Get the player's navigation target
+ *
+ * > target = player:GetNavTarget()
+ *
+ * Return:
+ *
+ *   target - nil, or a <Body>
+ * 
+ * Availability:
+ * 
+ *   alpha 15
+ *
+ * Status:
+ *
+ *   experimental
+ */
+
+static int l_get_nav_target(lua_State *l)
+{
+	Player *p = LuaPlayer::GetFromLua(1);
+	LuaBody::PushToLua(p->GetNavTarget());
+	return 1;
+}
+
+/*
+ * Method: SetNavTarget
+ *
+ * Set the player's navigation target
+ *
+ * > player:SetNavTarget(target)
+ *
+ * Parameters:
+ *
+ *   target - a <Body> to which to set the navigation target
+ * 
+ * Availability:
+ * 
+ *   alpha 14
+ *
+ * Status:
+ *
+ *   experimental
+ */
+
+static int l_set_nav_target(lua_State *l)
+{
+	Player *p = LuaPlayer::GetFromLua(1);
+	Body *target = LuaBody::GetFromLua(2);
+    p->SetNavTarget(target);
+    return 0;
+}
+
+/*
+ * Method: GetCombatTarget
+ *
+ * Get the player's combat target
+ *
+ * > target = player:GetCombatTarget()
+ *
+ * Return:
+ *
+ *   target - nil, or a <Body>
+ * 
+ * Availability:
+ * 
+ *   alpha 15
+ *
+ * Status:
+ *
+ *   experimental
+ */
+
+static int l_get_combat_target(lua_State *l)
+{
+	Player *p = LuaPlayer::GetFromLua(1);
+	LuaBody::PushToLua(p->GetCombatTarget());
+	return 1;
+}
+
+/*
+ * Method: SetCombatTarget
+ *
+ * Set the player's combat target
+ *
+ * > player:SetCombatTarget(target)
+ *
+ * Parameters:
+ *
+ *   target - a <Body> to which to set the combat target
+ * 
+ * Availability:
+ * 
+ *   alpha 14
+ *
+ * Status:
+ *
+ *   experimental
+ */
+
+static int l_set_combat_target(lua_State *l)
+{
+	Player *p = LuaPlayer::GetFromLua(1);
+	Body *target = LuaBody::GetFromLua(2);
+    p->SetCombatTarget(target);
+    return 0;
+}
+
 static bool promotion_test(DeleteEmitter *o)
 {
 	return dynamic_cast<Player*>(o);
@@ -420,7 +531,12 @@ template <> void LuaObject<Player>::RegisterClass()
 		{ "SetMoney", l_player_set_money },
 		{ "AddMoney", l_player_add_money },
 
-		{ "AddCrime",      l_player_add_crime      },
+		{ "AddCrime",      l_player_add_crime },
+
+		{ "GetNavTarget",    l_get_nav_target    },
+		{ "SetNavTarget",    l_set_nav_target    },
+		{ "GetCombatTarget", l_get_combat_target },
+		{ "SetCombatTarget", l_set_combat_target },
 		{ 0, 0 }
 	};
 
