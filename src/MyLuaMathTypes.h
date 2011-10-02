@@ -4,7 +4,14 @@
 /*
  * Old Lua classes for fixed, vector and matrix types. Do not use these unless
  * you absolutely have to (and if you're not sure if you have to, then you
- * don't). Instead use the OOLua classes from PiLuaClasses.h
+ * don't).
+ * 
+ * XXX Should be replaced by LuaMatrix.{h,cpp} and LuaVector.{h,cpp}).
+ *     See LuaFixed for a similar example.
+ * 
+ * Note however that these are only used by the LMR system, which has
+ * a completely separate Lua setup than the Lua game API.
+ * 
  */
 
 #include "LuaUtils.h"
