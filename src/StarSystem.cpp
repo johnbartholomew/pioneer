@@ -740,7 +740,8 @@ const char *SBody::GetIcon()
 			} else {
 				if (averageTemp > 300) return "icons/object_planet_co2_2.png";
 				else if (averageTemp > 250) {
-					if ((m_volatileLiquid > 0.3) && (m_volatileGas > fixed(2,10))) return "icons/object_planet_co2_4.png";
+					if ((m_volatileLiquid > fixed(3,10)) && (m_volatileGas > fixed(2,10)))
+						return "icons/object_planet_co2_4.png";
 					else return "icons/object_planet_co2_3.png";
 				} else return "icons/object_planet_co2.png";
 			}
@@ -1158,8 +1159,9 @@ StarSystem::StarSystem(const SystemPath &path) : m_path(path)
 		centGrav1->mass = star[0]->mass + star[1]->mass;
 		centGrav1->children.push_back(star[0]);
 		centGrav1->children.push_back(star[1]);
+		const fixed minDist1 = (star[0]->radius + star[1]->radius) * AU_SOL_RADIUS;
 try_that_again_guvnah:
-		MakeBinaryPair(star[0], star[1], fixed(0), rand);
+		MakeBinaryPair(star[0], star[1], minDist1, rand);
 
 		m_numStars = 2;
 
@@ -1196,7 +1198,8 @@ try_that_again_guvnah:
 				MakeStarOfTypeLighterThan(star[3], secsys.starType[3],
 					star[2]->mass, rand);
 
-				MakeBinaryPair(star[2], star[3], fixed(0), rand);
+				const fixed minDist2 = (star[2]->radius + star[3]->radius) * AU_SOL_RADIUS;
+				MakeBinaryPair(star[2], star[3], minDist2, rand);
 				centGrav2->mass = star[2]->mass + star[3]->mass;
 				centGrav2->children.push_back(star[2]);
 				centGrav2->children.push_back(star[3]);
@@ -1209,8 +1212,8 @@ try_that_again_guvnah:
 			centGrav1->parent = superCentGrav;
 			centGrav2->parent = superCentGrav;
 			rootBody = superCentGrav;
-			const fixed minDist = star[0]->orbMax + star[2]->orbMax;
-			MakeBinaryPair(centGrav1, centGrav2, 4*minDist, rand);
+			const fixed minDistSuper = star[0]->orbMax + star[2]->orbMax;
+			MakeBinaryPair(centGrav1, centGrav2, 4*minDistSuper, rand);
 			superCentGrav->children.push_back(centGrav1);
 			superCentGrav->children.push_back(centGrav2);
 
@@ -1408,7 +1411,7 @@ void StarSystem::MakePlanetsAround(SBody *primary, MTRand &rand)
 
 	while (pos < discMax) {
 		// periapsis, apoapsis = closest, farthest distance in orbit
-		fixed periapsis = pos + pos*0.5*rand.NFixed(2);/* + jump */;
+		fixed periapsis = pos + pos*fixed(1,2)*rand.NFixed(2);/* + jump */;
 		fixed ecc = rand.NFixed(3);
 		fixed semiMajorAxis = periapsis / (fixed(1,1) - ecc);
 		fixed apoapsis = 2*semiMajorAxis - periapsis;
@@ -1680,7 +1683,7 @@ void StarSystem::Populate(bool addSpaceStations)
 // Unused?
 //	for (int i=(int)Equip::FIRST_COMMODITY; i<=(int)Equip::LAST_COMMODITY; i++) {
 //		Equip::Type t = (Equip::Type)i;
-//		const EquipType &type = EquipType::types[t];
+//		const EquipType &type = Equip::types[t];
 //		printf("%s: %d%%\n", type.name, m_tradeLevel[t]);
 //	}
 //	printf("System total population %.3f billion, tech level %d\n", m_totalPop.ToFloat(), m_techlevel);
@@ -1759,7 +1762,7 @@ void SBody::PopulateStage1(StarSystem *system, fixed &outTotalPop)
 	/* Commodities we produce (mining and agriculture) */
 	for (int i=Equip::FIRST_COMMODITY; i<Equip::LAST_COMMODITY; i++) {
 		Equip::Type t = Equip::Type(i);
-		const EquipType &itype = EquipType::types[t];
+		const EquipType &itype = Equip::types[t];
 		if (itype.techLevel > system->m_techlevel) continue;
 
 		fixed affinity = fixed(1,1);
@@ -1931,20 +1934,19 @@ StarSystem *StarSystem::Unserialize(Serializer::Reader &rd)
 	}
 }
 
-static std::map<SystemPath,StarSystem*> s_cachedSystems;
+typedef std::map<SystemPath,StarSystem*> SystemCacheMap;
+static SystemCacheMap s_cachedSystems;
 
 StarSystem *StarSystem::GetCached(const SystemPath &path)
 {
 	StarSystem *s = 0;
 
-	for (std::map<SystemPath,StarSystem*>::iterator i = s_cachedSystems.begin(); i != s_cachedSystems.end(); i++) {
-		if ((*i).first == path)
-			s = (*i).second;
-	}
-
-	if (!s) {
+	SystemCacheMap::const_iterator it = s_cachedSystems.find(path);
+	if (it != s_cachedSystems.end()) {
+		s = it->second;
+	} else {
 		s = new StarSystem(path);
-		s_cachedSystems.insert( std::pair<SystemPath,StarSystem*>(path, s) );
+		s_cachedSystems.insert( SystemCacheMap::value_type(path, s) );
 	}
 
 	s->IncRefCount();

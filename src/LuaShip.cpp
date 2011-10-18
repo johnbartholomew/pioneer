@@ -454,7 +454,7 @@ static int l_ship_get_equip(lua_State *l)
 		return 0;
 	
 	if (lua_isnumber(l, 3)) {
-		int idx = lua_tonumber(l, 3);
+		int idx = lua_tointeger(l, 3);
 		lua_pushstring(l, LuaConstants::GetConstantString(l, "EquipType", s->m_equipment.Get(slot, idx)));
 		return 1;
 	}
@@ -552,6 +552,10 @@ static int l_ship_add_equip(lua_State *l)
 	int num = 1;
 	if (lua_isnumber(l, 3))
 		num = lua_tointeger(l, 3);
+
+	const shipstats_t *stats = s->CalcStats();
+	if (Equip::types[e].mass != 0)
+		num = std::min(stats->free_capacity / (Equip::types[e].mass), num);
 
 	lua_pushinteger(l, s->m_equipment.Add(e, num));
 	s->UpdateMass();
