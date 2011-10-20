@@ -130,6 +130,12 @@ void Ship::Load(Serializer::Reader &rd)
 
 void Ship::Init()
 {
+	// XXX the animation namespace must match that in LuaConstants
+	// note: this must be set before generating the collision mesh
+	// (which happens in SetModel())
+	// and before rendering
+	GetLmrObjParams().animationNamespace = "ShipAnimation";
+
 	const ShipType &stype = GetShipType();
 	SetModel(stype.lmrModelName.c_str());
 	SetMassDistributionFromModel();
@@ -171,9 +177,6 @@ Ship::Ship(ShipType::Type shipType): DynamicBody()
 	SetLabel(m_shipFlavour.regid);
 	m_curAICmd = 0;
 	m_equipment.onChange.connect(sigc::mem_fun(this, &Ship::OnEquipmentChange));
-
-	// XXX the animation namespace must match that in LuaConstants
-	GetLmrObjParams().animationNamespace = "ShipAnimation";
 
 	Init();	
 }
