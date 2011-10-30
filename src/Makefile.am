@@ -98,6 +98,7 @@ noinst_HEADERS = \
 	StationShipRepairForm.h \
 	StationShipViewForm.h \
 	StationShipyardForm.h \
+	StringBuffer.h \
 	StringF.h \
 	Sfx.h \
 	Ship.h \
@@ -216,6 +217,7 @@ pioneer_SOURCES	= \
 	StationShipRepairForm.cpp \
 	StationShipViewForm.cpp \
 	StationShipyardForm.cpp \
+	StringBuffer.cpp \
 	StringF.cpp \
 	Sfx.cpp \
 	Ship-AI.cpp \
@@ -262,6 +264,7 @@ modelviewer_SOURCES = \
 	LuaModelViewer.cpp \
 	LuaUtils.cpp \
 	MyLuaMathTypes.cpp \
+	StringBuffer.cpp \
 	StringF.cpp \
 	TextureFont.cpp \
 	TextureManager.cpp \
