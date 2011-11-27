@@ -19,8 +19,8 @@ SectorCacheMap Sector::s_gameCache;
 RefCountedPtr<Sector> Sector::Get(const SystemPath &path)
 {
 	SystemPath secPath = path.SectorOnly();
-	Sector *s = 0;
 	SectorCacheMap::iterator it;
+
 	it = s_gameCache.find(secPath);
 	if (it != s_gameCache.end())
 		return RefCountedPtr<Sector>(it->second);
