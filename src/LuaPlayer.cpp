@@ -4,7 +4,7 @@
 #include "LuaUtils.h"
 #include "LuaConstants.h"
 #include "Player.h"
-#include "Polit.h"
+#include "galaxy/Polit.h"
 
 /*
  * Class: Player

@@ -4,11 +4,11 @@
 #include "enum_table.h"
 #include "EquipType.h"
 #include "Player.h"
-#include "Polit.h"
 #include "Ship.h"
 #include "ShipType.h"
 #include "SpaceStation.h"
-#include "StarSystem.h"
+#include "galaxy/Polit.h"
+#include "galaxy/StarSystem.h"
 
 const struct EnumItem ENUM_EquipSlot[] = {
 	{ "CARGO", Equip::SLOT_CARGO },
@@ -118,51 +118,6 @@ const struct EnumItem ENUM_MissionStatus[] = {
 	{ 0, 0 },
 };
 
-const struct EnumItem ENUM_PolitCrime[] = {
-	{ "TRADING_ILLEGAL_GOODS", Polit::CRIME_TRADING_ILLEGAL_GOODS },
-	{ "WEAPON_DISCHARGE", Polit::CRIME_WEAPON_DISCHARGE },
-	{ "PIRACY", Polit::CRIME_PIRACY },
-	{ "MURDER", Polit::CRIME_MURDER },
-	{ 0, 0 },
-};
-
-const struct EnumItem ENUM_PolitBloc[] = {
-	{ "NONE", Polit::BLOC_NONE },
-	{ "EARTHFED", Polit::BLOC_EARTHFED },
-	{ "CIS", Polit::BLOC_CIS },
-	{ "EMPIRE", Polit::BLOC_EMPIRE },
-	{ 0, 0 },
-};
-
-const struct EnumItem ENUM_PolitEcon[] = {
-	{ "NONE", Polit::ECON_NONE },
-	{ "VERY_CAPITALIST", Polit::ECON_VERY_CAPITALIST },
-	{ "CAPITALIST", Polit::ECON_CAPITALIST },
-	{ "MIXED", Polit::ECON_MIXED },
-	{ "PLANNED", Polit::ECON_PLANNED },
-	{ 0, 0 },
-};
-
-const struct EnumItem ENUM_PolitGovType[] = {
-	{ "NONE", Polit::GOV_NONE },
-	{ "EARTHCOLONIAL", Polit::GOV_EARTHCOLONIAL },
-	{ "EARTHDEMOC", Polit::GOV_EARTHDEMOC },
-	{ "EMPIRERULE", Polit::GOV_EMPIRERULE },
-	{ "CISLIBDEM", Polit::GOV_CISLIBDEM },
-	{ "CISSOCDEM", Polit::GOV_CISSOCDEM },
-	{ "LIBDEM", Polit::GOV_LIBDEM },
-	{ "CORPORATE", Polit::GOV_CORPORATE },
-	{ "SOCDEM", Polit::GOV_SOCDEM },
-	{ "EARTHMILDICT", Polit::GOV_EARTHMILDICT },
-	{ "MILDICT1", Polit::GOV_MILDICT1 },
-	{ "MILDICT2", Polit::GOV_MILDICT2 },
-	{ "EMPIREMILDICT", Polit::GOV_EMPIREMILDICT },
-	{ "COMMUNIST", Polit::GOV_COMMUNIST },
-	{ "PLUTOCRATIC", Polit::GOV_PLUTOCRATIC },
-	{ "DISORDER", Polit::GOV_DISORDER },
-	{ 0, 0 },
-};
-
 const struct EnumItem ENUM_ShipAnimation[] = {
 	{ "WHEEL_STATE", Ship::ANIM_WHEEL_STATE },
 	{ 0, 0 },
@@ -224,6 +179,51 @@ const struct EnumItem ENUM_SpaceStationAnimation[] = {
 	{ "DOCKING_BAY_2", SpaceStation::ANIM_DOCKING_BAY_2 },
 	{ "DOCKING_BAY_3", SpaceStation::ANIM_DOCKING_BAY_3 },
 	{ "DOCKING_BAY_4", SpaceStation::ANIM_DOCKING_BAY_4 },
+	{ 0, 0 },
+};
+
+const struct EnumItem ENUM_PolitCrime[] = {
+	{ "TRADING_ILLEGAL_GOODS", Polit::CRIME_TRADING_ILLEGAL_GOODS },
+	{ "WEAPON_DISCHARGE", Polit::CRIME_WEAPON_DISCHARGE },
+	{ "PIRACY", Polit::CRIME_PIRACY },
+	{ "MURDER", Polit::CRIME_MURDER },
+	{ 0, 0 },
+};
+
+const struct EnumItem ENUM_PolitBloc[] = {
+	{ "NONE", Polit::BLOC_NONE },
+	{ "EARTHFED", Polit::BLOC_EARTHFED },
+	{ "CIS", Polit::BLOC_CIS },
+	{ "EMPIRE", Polit::BLOC_EMPIRE },
+	{ 0, 0 },
+};
+
+const struct EnumItem ENUM_PolitEcon[] = {
+	{ "NONE", Polit::ECON_NONE },
+	{ "VERY_CAPITALIST", Polit::ECON_VERY_CAPITALIST },
+	{ "CAPITALIST", Polit::ECON_CAPITALIST },
+	{ "MIXED", Polit::ECON_MIXED },
+	{ "PLANNED", Polit::ECON_PLANNED },
+	{ 0, 0 },
+};
+
+const struct EnumItem ENUM_PolitGovType[] = {
+	{ "NONE", Polit::GOV_NONE },
+	{ "EARTHCOLONIAL", Polit::GOV_EARTHCOLONIAL },
+	{ "EARTHDEMOC", Polit::GOV_EARTHDEMOC },
+	{ "EMPIRERULE", Polit::GOV_EMPIRERULE },
+	{ "CISLIBDEM", Polit::GOV_CISLIBDEM },
+	{ "CISSOCDEM", Polit::GOV_CISSOCDEM },
+	{ "LIBDEM", Polit::GOV_LIBDEM },
+	{ "CORPORATE", Polit::GOV_CORPORATE },
+	{ "SOCDEM", Polit::GOV_SOCDEM },
+	{ "EARTHMILDICT", Polit::GOV_EARTHMILDICT },
+	{ "MILDICT1", Polit::GOV_MILDICT1 },
+	{ "MILDICT2", Polit::GOV_MILDICT2 },
+	{ "EMPIREMILDICT", Polit::GOV_EMPIREMILDICT },
+	{ "COMMUNIST", Polit::GOV_COMMUNIST },
+	{ "PLUTOCRATIC", Polit::GOV_PLUTOCRATIC },
+	{ "DISORDER", Polit::GOV_DISORDER },
 	{ 0, 0 },
 };
 

@@ -2,7 +2,7 @@
 #include "LuaSector.h"
 #include "LuaUtils.h"
 #include "LuaConstants.h"
-#include "CustomSystem.h"
+#include "galaxy/CustomSystem.h"
 
 static int l_sector_new(lua_State *l)
 {

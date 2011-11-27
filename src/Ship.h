@@ -5,7 +5,7 @@
 #include "DynamicBody.h"
 #include "ShipType.h"
 #include "ShipFlavour.h"
-#include "SystemPath.h"
+#include "galaxy/SystemPath.h"
 #include "BezierCurve.h"
 #include "Serializer.h"
 #include <list>

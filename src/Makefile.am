@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-SUBDIRS = collider gui render terrain
+SUBDIRS = collider gui render galaxy terrain
 
 include $(top_srcdir)/Makefile.common
 
@@ -21,7 +21,6 @@ noinst_HEADERS = \
 	CityOnPlanet.h \
 	Color.h \
 	CommodityTradeWidget.h \
-	CustomSystem.h \
 	DeadVideoLink.h \
 	DeleteEmitter.h \
 	DynamicBody.h \
@@ -33,7 +32,6 @@ noinst_HEADERS = \
 	FormController.h \
 	Frame.h \
 	GalacticView.h \
-	Galaxy.h \
 	GameMenuView.h \
 	GeoSphere.h \
 	HyperspaceCloud.h \
@@ -87,12 +85,10 @@ noinst_HEADERS = \
 	Pi.h \
 	Planet.h \
 	Player.h \
-	Polit.h \
 	Projectile.h \
 	Quaternion.h \
 	RefCounted.h \
 	RefList.h \
-	Sector.h \
 	SectorView.h \
 	Serializer.h \
 	StationAdvertForm.h \
@@ -120,9 +116,7 @@ noinst_HEADERS = \
 	SpaceStation.h \
 	SpaceStationView.h \
 	Star.h \
-	StarSystem.h \
 	SystemInfoView.h \
-	SystemPath.h \
 	SystemView.h \
 	TerrainBody.h \
 	TextureFont.h \
@@ -152,7 +146,6 @@ pioneer_SOURCES	= \
 	ChatForm.cpp \
 	CityOnPlanet.cpp \
 	CommodityTradeWidget.cpp \
-	CustomSystem.cpp \
 	DeadVideoLink.cpp \
 	DynamicBody.cpp \
 	EquipType.cpp \
@@ -162,7 +155,6 @@ pioneer_SOURCES	= \
 	FormController.cpp \
 	Frame.cpp \
 	GalacticView.cpp \
-	Galaxy.cpp \
 	GameMenuView.cpp \
 	GeoSphere.cpp \
 	HyperspaceCloud.cpp \
@@ -214,9 +206,7 @@ pioneer_SOURCES	= \
 	Pi.cpp \
 	Planet.cpp \
 	Player.cpp \
-	Polit.cpp \
 	Projectile.cpp \
-	Sector.cpp \
 	SectorView.cpp \
 	Serializer.cpp \
 	StationAdvertForm.cpp \
@@ -245,7 +235,6 @@ pioneer_SOURCES	= \
 	SpaceStation.cpp \
 	SpaceStationView.cpp \
 	Star.cpp \
-	StarSystem.cpp \
 	SystemInfoView.cpp \
 	SystemView.cpp \
 	TerrainBody.cpp \
@@ -259,7 +248,9 @@ pioneer_SOURCES	= \
 	utils.cpp \
 	enum_table.cpp
 
-pioneer_LDADD = collider/libcollider.a gui/libgui.a render/librender.a terrain/libterrain.a \
+pioneer_LDADD = \
+		collider/libcollider.a gui/libgui.a render/librender.a \
+		galaxy/libgalaxy.a terrain/libterrain.a \
 		$(MINGW_LIBS) \
 		$(FREETYPE_LIBS) $(GLEW_LIBS) $(GLU_LIBS) $(GL_LIBS) \
 		$(SDL_LIBS) $(SIGC_LIBS) $(LUA_LIBS) $(VORBIS_LIBS) \
@@ -305,7 +296,7 @@ tests_SOURCES = \
 
 TESTS = tests
  
-tests_LDADD = collider/libcollider.a gui/libgui.a render/librender.a terrain/libterrain.a
+tests_LDADD = collider/libcollider.a gui/libgui.a render/librender.a galaxy/libgalaxy.a terrain/libterrain.a
 
 INCLUDES = -isystem @top_srcdir@/contrib
 if !HAVE_LUA

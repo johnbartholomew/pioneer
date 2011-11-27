@@ -2,8 +2,8 @@
 #define _CUSTOMSYSTEM_H
 
 #include "libs.h"
-#include "Polit.h"
-#include "StarSystem.h"
+#include "galaxy/Polit.h"
+#include "galaxy/StarSystem.h"
 #include "DeleteEmitter.h"
 #include "LuaObject.h"
 
@@ -38,8 +38,8 @@ typedef LuaObject<CustomSystem> LuaCustomSystem;
 #ifndef _CUSTOMSYSTEM_H
 #define _CUSTOMSYSTEM_H
 
-#include "StarSystem.h"
-#include "Polit.h"
+#include "galaxy/StarSystem.h"
+#include "galaxy/Polit.h"
 #include "vector3.h"
 #include "fixed.h"
 

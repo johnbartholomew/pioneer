@@ -6,14 +6,14 @@
 #include "LuaSystemPath.h"
 #include "LuaUtils.h"
 #include "LuaConstants.h"
-#include "StarSystem.h"
+#include "galaxy/StarSystem.h"
 #include "EquipType.h"
 #include "Pi.h"
 #include "Space.h"
 #include "Star.h"
 #include "Planet.h"
 #include "SpaceStation.h"
-#include "Sector.h"
+#include "galaxy/Sector.h"
 
 /*
  * Class: StarSystem

@@ -1,6 +1,6 @@
 #include "Camera.h"
 #include "Frame.h"
-#include "StarSystem.h"
+#include "galaxy/StarSystem.h"
 #include "render/Render.h"
 #include "Space.h"
 #include "Player.h"

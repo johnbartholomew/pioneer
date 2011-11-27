@@ -169,8 +169,8 @@ template <> void LuaObject<CustomSystem>::RegisterClass()
 #include "LuaUtils.h"
 #include "PiLuaClasses.h"
 #include "LuaConstants.h"
-#include "Polit.h"
-#include "SystemPath.h"
+#include "galaxy/Polit.h"
+#include "galaxy/SystemPath.h"
 
 static lua_State *csLua;
 

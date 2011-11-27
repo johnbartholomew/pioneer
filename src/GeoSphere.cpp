@@ -2,7 +2,7 @@
 #include "GeoSphere.h"
 #include "perlin.h"
 #include "Pi.h"
-#include "StarSystem.h"
+#include "galaxy/StarSystem.h"
 #include "RefCounted.h"
 #include "render/Render.h"
 #include "render/RenderFrustum.h"

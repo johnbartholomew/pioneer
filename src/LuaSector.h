@@ -2,7 +2,7 @@
 #define _LUASECTOR_H
 
 #include "LuaObject.h"
-#include "Sector.h"
+#include "galaxy/Sector.h"
 
 // this specialisation releases the sector when lua is done with it, which
 // probably causes it to be freed

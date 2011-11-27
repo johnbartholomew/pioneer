@@ -4,7 +4,7 @@
 #include <list>
 #include "libs.h"
 #include "Ship.h"
-#include "StarSystem.h"
+#include "galaxy/StarSystem.h"
 #include "RefList.h"
 #include "HyperspaceCloud.h"
 #include "MarketAgent.h"
