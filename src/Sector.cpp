@@ -12,40 +12,29 @@ static const char *sys_names[SYS_NAME_FRAGS] =
 
 const float Sector::SIZE = 8;
 
-std::map<SystemPath,Sector*> Sector::s_startupCache;
-std::map<SystemPath,Sector*> Sector::s_gameCache;
+typedef std::map<SystemPath, Sector*> SectorCacheMap;
+SectorCacheMap Sector::s_startupCache;
+SectorCacheMap Sector::s_gameCache;
 
-Sector *Sector::Get(int x, int y, int z)
+RefCountedPtr<Sector> Sector::Get(const SystemPath &path)
 {
-	SystemPath path(x,y,z,0,0);
+	SystemPath secPath = path.SectorOnly();
+	Sector *s = 0;
+	SectorCacheMap::iterator it;
+	it = s_gameCache.find(secPath);
+	if (it != s_gameCache.end())
+		return RefCountedPtr<Sector>(it->second);
 
-	Sector *s;
-	std::map<SystemPath,Sector*>::iterator i;
+	it = s_startupCache.find(secPath);
+	if (it != s_startupCache.end())
+		return RefCountedPtr<Sector>(it->second);
 
-	i = s_gameCache.find(path);
-	if (i != s_gameCache.end()) {
-		s = (*i).second;
-		s->IncRefCount();
-		return s;
-	}
-
-	i = s_startupCache.find(path);
-	if (i != s_startupCache.end()) {
-		s = (*i).second;
-		s->IncRefCount();
-		return s;
-	}
-
-	s = new Sector(x,y,z);
-	s->IncRefCount();
-	return s;
+	return RefCountedPtr<Sector>(new Sector(secPath.sectorX, secPath.sectorY, secPath.sectorZ));
 }
 
-void Sector::Release()
+RefCountedPtr<Sector> Sector::Get(int x, int y, int z)
 {
-	DecRefCount();
-	if (!GetRefCount())
-        delete this;
+	return Get(SystemPath(x,y,z));
 }
 
 const std::vector<Sector::System> &Sector::GetSystems() const

@@ -191,7 +191,7 @@ void GetSysPolitStarSystem(const StarSystem *s, const fixed human_infestedness, 
 	const unsigned long _init[5] = { path.sectorX, path.sectorY, path.sectorZ, path.systemIndex, POLIT_SEED };
 	MTRand rand(_init, 5);
 
-	Sector *sec = Sector::Get(path.sectorX, path.sectorY, path.sectorZ);
+	RefCountedPtr<Sector> sec = Sector::Get(path.sectorX, path.sectorY, path.sectorZ);
 
 	GovType a = GOV_INVALID;
 	
@@ -218,8 +218,6 @@ void GetSysPolitStarSystem(const StarSystem *s, const fixed human_infestedness, 
 
 	outSysPolit.govType = a;
 	outSysPolit.lawlessness = s_govDesc[a].baseLawlessness * rand.Fixed();
-
-    sec->Release();
 }
 
 #define POLIT_SALT 0x8732abdf

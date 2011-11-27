@@ -239,20 +239,20 @@ static int l_starsystem_get_nearby_systems(lua_State *l)
 	int here_y = here.sectorY;
 	int here_z = here.sectorZ;
 	Uint32 here_idx = here.systemIndex;
-	Sector *here_sec = Sector::Get(here_x, here_y, here_z);
+	RefCountedPtr<Sector> here_sec = Sector::Get(here_x, here_y, here_z);
 
 	int diff_sec = int(ceil(dist_ly/Sector::SIZE));
 
 	for (int x = here_x-diff_sec; x <= here_x+diff_sec; x++) {
 		for (int y = here_y-diff_sec; y <= here_y+diff_sec; y++) {
 			for (int z = here_z-diff_sec; z <= here_z+diff_sec; z++) {
-				Sector *sec = Sector::Get(x, y, z);
+				RefCountedPtr<Sector> sec = Sector::Get(x, y, z);
 
 				for (unsigned int idx = 0; idx < sec->GetNumSystems(); idx++) {
 					if (x == here_x && y == here_y && z == here_z && idx == here_idx)
 						continue;
 
-					if (Sector::DistanceBetween(here_sec, here_idx, sec, idx) > dist_ly)
+					if (Sector::DistanceBetween(here_sec.Get(), here_idx, sec.Get(), idx) > dist_ly)
 						continue;
 
 					RefCountedPtr<StarSystem> sys = StarSystem::GetCached(SystemPath(x, y, z, idx));
@@ -271,13 +271,9 @@ static int l_starsystem_get_nearby_systems(lua_State *l)
 					LuaStarSystem::PushToLua(sys.Get());
 					lua_rawset(l, -3);
 				}
-
-				sec->Release();
 			}
 		}
 	}
-
-	here_sec->Release();
 
 	LUA_DEBUG_END(l, 1);
 	
@@ -320,13 +316,11 @@ static int l_starsystem_distance_to(lua_State *l)
 		loc2 = &(s2->GetPath());
 	}
 
-	Sector *sec1 = Sector::Get(loc1->sectorX, loc1->sectorY, loc1->sectorZ);
-	Sector *sec2 = Sector::Get(loc2->sectorX, loc2->sectorY, loc2->sectorZ);
+	RefCountedPtr<Sector> sec1, sec2;
+	sec1 = Sector::Get(loc1->sectorX, loc1->sectorY, loc1->sectorZ);
+	sec2 = Sector::Get(loc2->sectorX, loc2->sectorY, loc2->sectorZ);
 	
-	double dist = Sector::DistanceBetween(sec1, loc1->systemIndex, sec2, loc2->systemIndex);
-
-	sec1->Release();
-	sec2->Release();
+	double dist = Sector::DistanceBetween(sec1.Get(), loc1->systemIndex, sec2.Get(), loc2->systemIndex);
 
 	lua_pushnumber(l, dist);
 

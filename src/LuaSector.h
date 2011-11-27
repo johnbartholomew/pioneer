@@ -9,9 +9,11 @@
 template<>
 class LuaAcquirer<Sector> {
 public:
-	virtual void Acquire(Sector *o) {}
-	virtual void Release(Sector *o) {
-		o->Release();
+	virtual void OnAcquire(Sector *o) {
+		o->IncRefCount();
+	}
+	virtual void OnRelease(Sector *o) {
+		o->DecRefCount();
 	}
 };
 

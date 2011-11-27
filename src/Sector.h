@@ -9,7 +9,7 @@
 #include "DeleteEmitter.h"
 #include "CustomSystem.h"
 
-class Sector : public DeleteEmitter, private RefCounted {
+class Sector : public DeleteEmitter, public RefCounted {
 public:
 
 	class System {
@@ -39,8 +39,8 @@ public:
 	// lightyears
 	static const float SIZE;
 
-	static Sector *Get(int x, int y, int z);
-	void Release();
+	static RefCountedPtr<Sector> Get(const SystemPath &path);
+	static RefCountedPtr<Sector> Get(int x, int y, int z);
 
 	const std::vector<System> &GetSystems() const;
 	const System &GetSystem(Uint32 n) const;

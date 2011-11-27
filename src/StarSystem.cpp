@@ -1171,7 +1171,7 @@ StarSystem::StarSystem(const SystemPath &path) : m_path(path)
 	memset(m_tradeLevel, 0, sizeof(m_tradeLevel));
 	rootBody = 0;
 
-	Sector *sec = Sector::Get(m_path.sectorX, m_path.sectorY, m_path.sectorZ);
+	RefCountedPtr<Sector> sec = Sector::Get(m_path.sectorX, m_path.sectorY, m_path.sectorZ);
 	assert(m_path.systemIndex >= 0 && m_path.systemIndex < sec->GetNumSystems());
 
 	const Sector::System secsys = sec->GetSystem(m_path.systemIndex);
@@ -1200,7 +1200,6 @@ StarSystem::StarSystem(const SystemPath &path) : m_path(path)
 		if (!custom->IsRandom()) {
 			m_hasCustomBodies = true;
 			GenerateFromCustom(secsys.customSys, rand);
-			sec->Release();
 			return;
 		}
 #endif
@@ -1305,7 +1304,7 @@ try_that_again_guvnah:
 		}
 	}
 
-	sec->Release();
+	sec.Reset();
 
 	m_metallicity = starMetallicities[rootBody->type];
 

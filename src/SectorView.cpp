@@ -841,14 +841,16 @@ Sector* SectorView::GetCached(int sectorX, int sectorY, int sectorZ)
 	const SystemPath loc(sectorX, sectorY, sectorZ);
 
 	Sector *s = 0;
-
-	std::map<SystemPath,Sector*>::iterator i = m_sectorCache.find(loc);
-	if (i != m_sectorCache.end())
-		return (*i).second;
-
-	s = Sector::Get(sectorX, sectorY, sectorZ);
-	m_sectorCache.insert( std::pair<SystemPath,Sector*>(loc, s) );
-
+	std::pair<std::map<SystemPath,Sector*>::iterator, bool>
+		ret = m_sectorCache.insert(std::map<SystemPath,Sector*>::value_type(loc, s));
+	if (ret.second) {
+		RefCountedPtr<Sector> sref = Sector::Get(sectorX, sectorY, sectorZ);
+		s = sref.Get();
+		s->IncRefCount(); // we hold a ref
+		ret.first->second = s;
+	} else {
+		s = ret.first->second;
+	}
 	return s;
 }
 
@@ -869,7 +871,8 @@ void SectorView::ShrinkCache()
 		Sector *s = (*iter).second;
 		//check_point_in_box
 		if (s && !s->WithinBox( xmin, xmax, ymin, ymax, zmin, zmax )) {
-			delete s;
+			// release our ref
+			s->DecRefCount();
 			m_sectorCache.erase( iter++ ); 
 		} else {
 			iter++;

@@ -668,7 +668,7 @@ void WorldView::RefreshButtonStateAndVisibility()
 			}
 			else {
 				const SystemPath dest = ship->GetHyperspaceDest();
-				Sector *s = Sector::Get(dest.sectorX, dest.sectorY, dest.sectorZ);
+				RefCountedPtr<Sector> s = Sector::Get(dest.sectorX, dest.sectorY, dest.sectorZ);
 				text += (cloud->IsArrival() ? Lang::HYPERSPACE_ARRIVAL_CLOUD : Lang::HYPERSPACE_DEPARTURE_CLOUD);
 				text += "\n";
 				text += stringf(Lang::SHIP_MASS_N_TONNES, formatarg("mass", ship->CalcStats()->total_mass));
@@ -679,7 +679,6 @@ void WorldView::RefreshButtonStateAndVisibility()
 				text += "\n";
 				text += stringf(Lang::DATE_DUE_N, formatarg("date", format_date(cloud->GetDueDate())));
 				text += "\n";
-				s->Release();
 			}
 
 			m_hudTargetInfo->SetText(text);

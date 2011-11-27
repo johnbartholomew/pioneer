@@ -9,8 +9,8 @@ static int l_sector_new(lua_State *l)
 	int x = luaL_checkinteger(l, 1);
 	int y = luaL_checkinteger(l, 2);
 	int z = luaL_checkinteger(l, 3);
-	Sector *s = Sector::Get(x, y, z);
-	LuaSector::PushToLua(s);
+	RefCountedPtr<Sector> s = Sector::Get(x, y, z);
+	LuaSector::PushToLua(s.Get());
 	return 1;
 }
 

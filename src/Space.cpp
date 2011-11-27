@@ -708,10 +708,10 @@ vector3d GetRandomPosition(float min_dist, float max_dist)
 
 vector3d GetPositionAfterHyperspace(const SystemPath *source, const SystemPath *dest)
 {
-	Sector source_sec(source->sectorX,source->sectorY,source->sectorZ);
-	Sector dest_sec(dest->sectorX,dest->sectorY,dest->sectorZ);
-	Sector::System source_sys = source_sec.m_systems[source->systemIndex];
-	Sector::System dest_sys = dest_sec.m_systems[dest->systemIndex];
+	RefCountedPtr<Sector> source_sec = Sector::Get(*source);
+	RefCountedPtr<Sector> dest_sec = Sector::Get(*dest);
+	const Sector::System &source_sys = source_sec->GetSystem(source->systemIndex);
+	const Sector::System &dest_sys = dest_sec->GetSystem(dest->systemIndex);
 	const vector3d sourcePos = vector3d(source_sys.p) + vector3d(source->sectorX, source->sectorY, source->sectorZ);
 	const vector3d destPos = vector3d(dest_sys.p) + vector3d(dest->sectorX, dest->sectorY, dest->sectorZ);
 	return (sourcePos - destPos).Normalized() * 11.0*AU + GetRandomPosition(5.0,20.0)*1000.0; // "hyperspace zone": 11 AU from primary

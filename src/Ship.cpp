@@ -400,16 +400,9 @@ const shipstats_t *Ship::CalcStats()
 static float distance_to_system(const SystemPath *dest)
 {
 	SystemPath here = Pi::currentSystem->GetPath();
-	
-	Sector *sec1 = Sector::Get(here.sectorX, here.sectorY, here.sectorZ);
-	Sector *sec2 = Sector::Get(dest->sectorX, dest->sectorY, dest->sectorZ);
-
-	float dist = Sector::DistanceBetween(sec1, here.systemIndex, sec2, dest->systemIndex);
-
-	sec1->Release();
-	sec2->Release();
-
-	return dist;
+	RefCountedPtr<Sector> sec1 = Sector::Get(here.sectorX, here.sectorY, here.sectorZ);
+	RefCountedPtr<Sector> sec2 = Sector::Get(dest->sectorX, dest->sectorY, dest->sectorZ);
+	return Sector::DistanceBetween(sec1.Get(), here.systemIndex, sec2.Get(), dest->systemIndex);
 }
 
 void Ship::UseHyperspaceFuel(const SystemPath *dest)
