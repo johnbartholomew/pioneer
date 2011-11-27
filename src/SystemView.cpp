@@ -12,7 +12,6 @@ const double SystemView::PICK_OBJECT_RECT_SIZE = 12.0;
 
 SystemView::SystemView()
 {
-	m_system = 0;
 	SetTransparency(true);
 
 	Gui::Screen::PushFont("OverlayFont");
@@ -75,7 +74,6 @@ SystemView::SystemView()
 
 SystemView::~SystemView()
 {
-	if (m_system) m_system->Release();
 	m_onMouseButtonDown.disconnect();
 }
 
@@ -176,9 +174,10 @@ void SystemView::PutBody(SBody *b, vector3d offset)
 
 		glColor3f(1,1,1);
 		glBegin(GL_TRIANGLE_FAN);
-		float radius = float(b->GetRadius()) * m_zoom;
+		double radius = b->GetRadius() * m_zoom;
+		const vector3f offsetf(offset);
 		for (float ang=0; ang<2.0f*M_PI; ang+=M_PI*0.05f) {
-			vector3f p = offset + s_invRot * vector3f(radius*sin(ang), -radius*cos(ang), 0);
+			vector3f p = offsetf + s_invRot * vector3f(radius*sin(ang), -radius*cos(ang), 0);
 			glVertex3fv(&p.x);
 		}
 		glEnd();
@@ -272,8 +271,7 @@ void SystemView::Draw3D()
 	SystemPath path = Pi::sectorView->GetSelectedSystem();
 	if (m_system) {
 		if (!m_system->GetPath().IsSameSystem(path)) {
-			m_system->Release();
-			m_system = 0;
+			m_system.Reset();
 			ResetViewpoint();
 		}
 	}

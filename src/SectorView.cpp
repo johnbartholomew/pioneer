@@ -16,7 +16,6 @@
 #define OUTER_RADIUS (Sector::SIZE*3.0f)
 		
 SectorView::SectorView() :
-	m_firstTime(true),
 	m_selectionFollowsMovement(true),
 	m_infoBoxVisible(true)
 {
@@ -142,6 +141,19 @@ SectorView::~SectorView()
 	if (m_onKeyPressConnection.connected()) m_onKeyPressConnection.disconnect();
 }
 
+void SectorView::NewGameInit()
+{
+	printf("SectorView::NewGameInit()\n");
+	assert(Pi::currentSystem);
+	m_current = Pi::currentSystem->GetPath();
+	assert(!m_current.IsSectorPath());
+	m_current = m_current.SystemOnly();
+
+	WarpToSystem(m_current);
+	OnClickSystem(m_current);
+	SetSelectedSystem(m_current);
+}
+
 void SectorView::Save(Serializer::Writer &wr)
 {
 	wr.Float(m_zoom);
@@ -178,8 +190,6 @@ void SectorView::Load(Serializer::Reader &rd)
 	UpdateSystemLabels(m_targetSystemLabels, m_hyperspaceTarget);
 
 	m_hyperspaceLockLabel->SetText(stringf("[%0]", std::string(m_matchTargetToSelection ? Lang::FOLLOWING_SELECTION : Lang::LOCKED)));
-
-	m_firstTime = false;
 }
 
 void SectorView::OnSearchBoxKeyPress(const SDL_keysym *keysym)
@@ -403,12 +413,14 @@ void SectorView::UpdateSystemLabels(SystemLabels &labels, const SystemPath &path
 		double dur;
 		enum Ship::HyperjumpStatus jumpStatus;
 		Pi::player->CanHyperspaceTo(&path, fuelRequired, dur, &jumpStatus);
-	
+		const double DaysNeeded = dur*(1.0 / (24*60*60)); 
+		const double HoursNeeded = (DaysNeeded - floor(DaysNeeded))*24;
+
 		switch (jumpStatus) {
 			case Ship::HYPERJUMP_OK:
-				snprintf(format, sizeof(format), "[ %s | %s | %s ]", Lang::NUMBER_LY, Lang::NUMBER_TONNES, Lang::NUMBER_HOURS);
+				snprintf(format, sizeof(format), "[ %s | %s | %s, %s ]", Lang::NUMBER_LY, Lang::NUMBER_TONNES, Lang::NUMBER_DAYS, Lang::NUMBER_HOURS);
 				labels.distance->SetText(stringf(format,
-					formatarg("distance", dist), formatarg("mass", fuelRequired), formatarg("hours", dur*0.0002778)));
+					formatarg("distance", dist), formatarg("mass", fuelRequired), formatarg("days", floor(DaysNeeded)), formatarg("hours", HoursNeeded)));
 				labels.distance->Color(0.0f, 1.0f, 0.2f);
 				break;
 			case Ship::HYPERJUMP_INSUFFICIENT_FUEL:
@@ -429,7 +441,7 @@ void SectorView::UpdateSystemLabels(SystemLabels &labels, const SystemPath &path
 		}
 	}
 
-	StarSystem *sys = StarSystem::GetCached(path);
+	RefCountedPtr<StarSystem> sys = StarSystem::GetCached(path);
 
 	std::string desc;
 	if (sys->GetNumStars() == 4) {
@@ -445,8 +457,6 @@ void SectorView::UpdateSystemLabels(SystemLabels &labels, const SystemPath &path
 
 	labels.systemName->SetText(sys->GetName());
 	labels.shortDesc->SetText(sys->GetShortDescription());
-
-	sys->Release();
 
 	if (m_infoBoxVisible)
 		m_infoBox->ShowAll();
@@ -514,7 +524,7 @@ void SectorView::DrawSector(int sx, int sy, int sz, const vector3f &playerAbsPos
 					fabs(m_posMovingTo.z - m_pos.z));
 			// Ideally, since this takes so f'ing long, it wants to be done as a threaded job but haven't written that yet.
 			if( !(*i).IsSetInhabited() && diff.x < 0.001f && diff.y < 0.001f && diff.z < 0.001f ) {
-				StarSystem* pSS = StarSystem::GetCached(current);
+				RefCountedPtr<StarSystem> pSS = StarSystem::GetCached(current);
 				if( (!pSS->m_unexplored) && (pSS->m_spaceStations.size()>0) ) 
 				{
 					(*i).SetInhabited(true);
@@ -523,7 +533,6 @@ void SectorView::DrawSector(int sx, int sy, int sz, const vector3f &playerAbsPos
 				{
 					(*i).SetInhabited(false);
 				}
-				pSS->Release();
 			}
 		}
 		
@@ -611,27 +620,18 @@ void SectorView::DrawSector(int sx, int sy, int sz, const vector3f &playerAbsPos
 }
 
 void SectorView::OnSwitchTo() {
-	if (m_firstTime) {
-		m_current = Pi::currentSystem->GetPath();
-
-		WarpToSystem(m_current);
-		OnClickSystem(m_current);
-
-		m_firstTime = false;
-	}
-	
 	UpdateSystemLabels(m_currentSystemLabels, m_current);
 	UpdateSystemLabels(m_selectedSystemLabels, m_selected);
 	UpdateSystemLabels(m_targetSystemLabels, m_hyperspaceTarget);
 
 	if (!m_onKeyPressConnection.connected())
 		m_onKeyPressConnection =
-			Pi::onKeyPress.connect(sigc::mem_fun(this, &SectorView::OnKeyPress));
+			Pi::onKeyPress.connect(sigc::mem_fun(this, &SectorView::OnKeyPressed));
 
 	Update();
 }
 
-void SectorView::OnKeyPress(SDL_keysym *keysym)
+void SectorView::OnKeyPressed(SDL_keysym *keysym)
 {
 	if (Pi::GetView() != this) {
 		m_onKeyPressConnection.disconnect();
@@ -838,7 +838,7 @@ void SectorView::MouseButtonDown(int button, int x, int y)
 
 Sector* SectorView::GetCached(int sectorX, int sectorY, int sectorZ)
 {
-	const SystemPath loc(sectorX, sectorY, sectorZ, 0);
+	const SystemPath loc(sectorX, sectorY, sectorZ);
 
 	Sector *s = 0;
 

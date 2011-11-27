@@ -14,6 +14,10 @@ class SectorView: public View {
 public:
 	SectorView();
 	virtual ~SectorView();
+
+	// must be called after Pi::currentSystem is initialised
+	void NewGameInit();
+
 	virtual void Update();
 	virtual void ShowAll();
 	virtual void Draw3D();
@@ -54,10 +58,8 @@ private:
 	void ShrinkCache();
 
 	void MouseButtonDown(int button, int x, int y);
-	void OnKeyPress(SDL_keysym *keysym);
+	void OnKeyPressed(SDL_keysym *keysym);
 	void OnSearchBoxKeyPress(const SDL_keysym *keysym);
-
-	bool m_firstTime;
 
 	SystemPath m_current;
 	SystemPath m_selected;

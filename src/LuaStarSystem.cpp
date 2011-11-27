@@ -55,17 +55,14 @@ static int l_starsystem_get_station_paths(lua_State *l)
 	LUA_DEBUG_START(l);
 
 	StarSystem *s = LuaStarSystem::GetFromLua(1);
-	SystemPath path = s->GetPath();
 
 	lua_newtable(l);
 	pi_lua_table_ro(l);
 
 	for (std::vector<SBody*>::const_iterator i = s->m_spaceStations.begin(); i != s->m_spaceStations.end(); i++)
 	{
-		SystemPath *station_path = new SystemPath(path.sectorX, path.sectorY, path.sectorZ, path.systemIndex, (*i)->id);
-
 		lua_pushinteger(l, lua_objlen(l, -1)+1);
-		LuaSystemPath::PushToLuaGC(station_path);
+		LuaSystemPath::PushToLua(&(*i)->path);
 		lua_rawset(l, -3);
 	}
 
@@ -98,17 +95,14 @@ static int l_starsystem_get_body_paths(lua_State *l)
 	LUA_DEBUG_START(l);
 
 	StarSystem *s = LuaStarSystem::GetFromLua(1);
-	SystemPath path = s->GetPath();
 
 	lua_newtable(l);
 	pi_lua_table_ro(l);
 
 	for (std::vector<SBody*>::const_iterator i = s->m_bodies.begin(); i != s->m_bodies.end(); i++)
 	{
-		SystemPath *body_path = new SystemPath(path.sectorX, path.sectorY, path.sectorZ, path.systemIndex, (*i)->id);
-
 		lua_pushinteger(l, lua_objlen(l, -1)+1);
-		LuaSystemPath::PushToLuaGC(body_path);
+		LuaSystemPath::PushToLua(&(*i)->path);
 		lua_rawset(l, -3);
 	}
 
@@ -261,24 +255,21 @@ static int l_starsystem_get_nearby_systems(lua_State *l)
 					if (Sector::DistanceBetween(here_sec, here_idx, sec, idx) > dist_ly)
 						continue;
 
-					StarSystem *sys = StarSystem::GetCached(SystemPath(x, y, z, idx));
+					RefCountedPtr<StarSystem> sys = StarSystem::GetCached(SystemPath(x, y, z, idx));
 					if (filter) {
 						lua_pushvalue(l, 3);
-						LuaStarSystem::PushToLua(sys);
+						LuaStarSystem::PushToLua(sys.Get());
 						lua_call(l, 1, 1);
 						if (!lua_toboolean(l, -1)) {
 							lua_pop(l, 1);
-							sys->Release();
 							continue;
 						}
 						lua_pop(l, 1);
 					}
 
 					lua_pushinteger(l, lua_objlen(l, -1)+1);
-					LuaStarSystem::PushToLua(sys);
+					LuaStarSystem::PushToLua(sys.Get());
 					lua_rawset(l, -3);
-
-					sys->Release();
 				}
 
 				sec->Release();

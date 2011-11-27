@@ -886,20 +886,10 @@ double calc_orbital_period(double semiMajorAxis, double centralMass)
 	return 2.0*M_PI*sqrt((semiMajorAxis*semiMajorAxis*semiMajorAxis)/(G*centralMass));
 }
 
-template <class T>
-static void shuffle_array(MTRand &rand, T *array, int len)
-{
-	for (int i=0; i<len; i++) {
-		int pos = rand.Int32(len);
-		T temp = array[i];
-		array[i] = array[pos];
-		array[pos] = temp;
-	}
-}
-
 SBody *StarSystem::GetBodyByPath(const SystemPath &path) const
 {
-    assert(m_path.IsSameSystem(path));
+	assert(m_path.IsSameSystem(path));
+	assert(path.IsBodyPath());
 	assert(path.bodyIndex < m_bodies.size());
 
 	return m_bodies[path.bodyIndex];
@@ -907,9 +897,7 @@ SBody *StarSystem::GetBodyByPath(const SystemPath &path) const
 
 SystemPath StarSystem::GetPathOf(const SBody *sbody) const
 {
-	SystemPath path = m_path;
-    path.bodyIndex = sbody->id;
-	return path;
+	return sbody->path;
 }
 
 /*
@@ -979,6 +967,8 @@ void StarSystem::CustomGetKidsOf(SBody *parent, const std::list<CustomSBody> *ch
 		kid->orbMin = csbody->semiMajorAxis - csbody->eccentricity*csbody->semiMajorAxis;
 		kid->orbMax = 2*csbody->semiMajorAxis - kid->orbMin;
 
+		kid->PickAtmosphere();
+
 		CustomGetKidsOf(kid, &csbody->children, outHumanInfestedness, rand);
 	}
 
@@ -1008,6 +998,7 @@ void StarSystem::GenerateFromCustom(const CustomSystem *customSys, MTRand &rand)
 void StarSystem::MakeStarOfType(SBody *sbody, SBody::BodyType type, MTRand &rand)
 {
 	sbody->type = type;
+	sbody->seed = rand.Int32();
 	sbody->radius = fixed(rand.Int32(starTypeInfo[type].radius[0],
 				starTypeInfo[type].radius[1]), 100);
 	sbody->mass = fixed(rand.Int32(starTypeInfo[type].mass[0],
@@ -1075,6 +1066,99 @@ SBody::SBody()
 	heightMapFilename = 0;
 }
 
+void SBody::PickAtmosphere()
+{
+	/* Alpha value isn't real alpha. in the shader fog depth is determined
+	 * by density*alpha, so that we can have very dense atmospheres
+	 * without having them a big stinking solid color obscuring everything
+
+	  These are our atmosphere colours, for terrestrial planets we use m_atmosOxidizing
+	  for some variation to atmosphere colours
+	 */
+	switch (type) {
+		case SBody::TYPE_PLANET_GAS_GIANT:
+			m_atmosColor = Color(1.0f, 1.0f, 1.0f, 0.005f);
+			m_atmosDensity = 14.0;
+			break;
+		case SBody::SUPERTYPE_STAR:
+		case SBody::TYPE_PLANET_ASTEROID:
+			m_atmosColor = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			m_atmosDensity = 0.0;
+			break;
+		default:
+		case SBody::TYPE_PLANET_TERRESTRIAL:
+			double r = 0, g = 0, b = 0;
+			double atmo = m_atmosOxidizing.ToDouble();
+			if (m_volatileGas.ToDouble() > 0.001) {
+				if (atmo > 0.95) {
+					// o2
+					r = 1.0f + ((0.95f-atmo)*15.0f);
+					g = 0.95f + ((0.95f-atmo)*10.0f);
+					b = atmo*atmo*atmo*atmo*atmo;
+					m_atmosColor = Color(r, g, b, 1.0);
+				} else if (atmo > 0.7) {
+					// co2
+					r = atmo+0.05f;
+					g = 1.0f + (0.7f-atmo);
+					b = 0.8f;
+					m_atmosColor = Color(r, g, b, 1.0f);
+				} else if (atmo > 0.65) {
+					// co
+					r = 1.0f + (0.65f-atmo);
+					g = 0.8f;
+					b = atmo + 0.25f;
+					m_atmosColor = Color(r, g, b, 1.0f);
+				} else if (atmo > 0.55) {
+					// ch4
+					r = 1.0f + ((0.55f-atmo)*5.0);
+					g = 0.35f - ((0.55f-atmo)*5.0);
+					b = 0.4f;
+					m_atmosColor = Color(r, g, b, 1.0f);
+				} else if (atmo > 0.3) {
+					// h
+					r = 1.0f;
+					g = 1.0f;
+					b = 1.0f;
+					m_atmosColor = Color(r, g, b, 1.0f);
+				} else if (atmo > 0.2) {
+					// he
+					r = 1.0f;
+					g = 1.0f;
+					b = 1.0f;
+					m_atmosColor = Color(r, g, b, 1.0f);
+				} else if (atmo > 0.15) {
+					// ar
+					r = 0.5f - ((0.15f-atmo)*5.0);
+					g = 0.0f;
+					b = 0.5f + ((0.15f-atmo)*5.0);
+					m_atmosColor = Color(r, g, b, 1.0f);
+				} else if (atmo > 0.1) {
+					// s
+					r = 0.8f - ((0.1f-atmo)*4.0);
+					g = 1.0f;
+					b = 0.5f - ((0.1f-atmo)*10.0);
+					m_atmosColor = Color(r, g, b, 1.0f);
+				} else {
+					// n
+					r = 1.0f;
+					g = 1.0f;
+					b = 1.0f;
+					m_atmosColor = Color(r, g, b, 1.0f);
+				}
+			} else {
+				m_atmosColor = Color(0.0, 0.0, 0.0, 0.0f);
+			}
+			m_atmosDensity = m_volatileGas.ToDouble();
+			//printf("| Atmosphere :\n|      red   : [%f] \n|      green : [%f] \n|      blue  : [%f] \n", r, g, b);
+			//printf("-------------------------------\n");
+			break;
+		/*default:
+			m_atmosColor = Color(0.6f, 0.6f, 0.6f, 1.0f);
+			m_atmosDensity = m_body->m_volatileGas.ToDouble();
+			break;*/
+	}
+}
+
 /*
  * As my excellent comrades have pointed out, choices that depend on floating
  * point crap will result in different universes on different platforms.
@@ -1083,6 +1167,7 @@ SBody::SBody()
  */
 StarSystem::StarSystem(const SystemPath &path) : m_path(path)
 {
+	assert(path.IsSystemPath());
 	memset(m_tradeLevel, 0, sizeof(m_tradeLevel));
 	rootBody = 0;
 
@@ -1598,6 +1683,8 @@ void SBody::PickPlanetType(StarSystem *system, MTRand &rand)
 	} else {
 		type = SBody::TYPE_PLANET_ASTEROID;
 	}
+
+    PickAtmosphere();
 }
 
 void StarSystem::MakeShortDescription(MTRand &rand)
@@ -1865,9 +1952,9 @@ void SBody::PopulateAddStations(StarSystem *system)
 		pop -= rand.Fixed();
 		if (pop > 0) {
 			SBody *sp2 = system->NewBody();
-			Uint32 id2 = sp2->id;
+			SystemPath path2 = sp2->path;
 			*sp2 = *sp;
-			sp2->id = id2;
+			sp2->path = path2;
 			sp2->orbit.rotMatrix = matrix4x4d::RotateZMatrix(M_PI);
 			sp2->name = stringf(Lang::SOMEWHERE_SPACEPORT, formatarg("spaceport", NameGenerator::Surname(rand)));
 			children.insert(children.begin(), sp2);
@@ -1921,7 +2008,7 @@ void StarSystem::Serialize(Serializer::Writer &wr, StarSystem *s)
 	}
 }
 
-StarSystem *StarSystem::Unserialize(Serializer::Reader &rd)
+RefCountedPtr<StarSystem> StarSystem::Unserialize(Serializer::Reader &rd)
 {
 	if (rd.Byte()) {
 		int sec_x = rd.Int32();
@@ -1930,27 +2017,28 @@ StarSystem *StarSystem::Unserialize(Serializer::Reader &rd)
 		int sys_idx = rd.Int32();
 		return StarSystem::GetCached(SystemPath(sec_x, sec_y, sec_z, sys_idx));
 	} else {
-		return 0;
+		return RefCountedPtr<StarSystem>(0);
 	}
 }
 
 typedef std::map<SystemPath,StarSystem*> SystemCacheMap;
 static SystemCacheMap s_cachedSystems;
 
-StarSystem *StarSystem::GetCached(const SystemPath &path)
+RefCountedPtr<StarSystem> StarSystem::GetCached(const SystemPath &path)
 {
+	SystemPath sysPath(path.SystemOnly());
+
 	StarSystem *s = 0;
-
-	SystemCacheMap::const_iterator it = s_cachedSystems.find(path);
-	if (it != s_cachedSystems.end()) {
-		s = it->second;
+	std::pair<SystemCacheMap::iterator, bool>
+		ret = s_cachedSystems.insert(SystemCacheMap::value_type(sysPath, static_cast<StarSystem*>(0)));
+	if (ret.second) {
+		s = new StarSystem(sysPath);
+		ret.first->second = s;
+		s->IncRefCount(); // the cache owns one reference
 	} else {
-		s = new StarSystem(path);
-		s_cachedSystems.insert( SystemCacheMap::value_type(path, s) );
+		s = ret.first->second;
 	}
-
-	s->IncRefCount();
-	return s;
+	return RefCountedPtr<StarSystem>(s);
 }
 
 void StarSystem::ShrinkCache()
@@ -1958,7 +2046,9 @@ void StarSystem::ShrinkCache()
 	std::map<SystemPath,StarSystem*>::iterator i = s_cachedSystems.begin();
 	while (i != s_cachedSystems.end()) {
 		StarSystem *s = (*i).second;
-		if (s->GetRefCount() == 0) {
+		assert(s->GetRefCount() >= 1); // sanity check
+		// if the cache is the only owner, then delete it
+		if (s->GetRefCount() == 1) {
 			delete s;
 			s_cachedSystems.erase(i++);
 		}
