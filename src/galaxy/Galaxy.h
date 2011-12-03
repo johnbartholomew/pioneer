@@ -1,6 +1,8 @@
 #ifndef _GALAXY_H
 #define _GALAXY_H
 
+#include "libs.h"
+
 /* Sector density lookup */
 namespace Galaxy {
 	// lightyears

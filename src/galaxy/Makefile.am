@@ -13,14 +13,16 @@ noinst_HEADERS = \
 	Polit.h \
 	Sector.h \
 	StarSystem.h \
-	CustomSystem.h
+	CustomSystem.h \
+	SystemGenerator.h
 
 libgalaxy_a_SOURCES = \
 	Galaxy.cpp \
 	Polit.cpp \
 	Sector.cpp \
 	StarSystem.cpp \
-	CustomSystem.cpp
+	CustomSystem.cpp \
+	SystemGenerator.cpp
 
 INCLUDES += -isystem @top_srcdir@/contrib
 if !HAVE_LUA
