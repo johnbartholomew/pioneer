@@ -16,7 +16,7 @@ Missile::Missile(ShipType::Type type, Body *owner, Body *target): Ship(type)
 	if (type == ShipType::MISSILE_SMART) m_power = 2;
 	if (type == ShipType::MISSILE_NAVAL) m_power = 3;
 
-	m_owner = owner;
+	m_owner.Reset(owner);
 	m_target = target;
 	m_distToTarget = FLT_MAX;
 	SetLabel(Lang::MISSILE);
@@ -34,14 +34,14 @@ void Missile::ECMAttack(int power_val)
 void Missile::PostLoadFixup(Space *space)
 {
 	Ship::PostLoadFixup(space);
-	m_owner = space->GetBodyByIndex(m_ownerIndex);
+	m_owner.Reset(space->GetBodyByIndex(m_ownerIndex));
 	m_target = space->GetBodyByIndex(m_targetIndex);
 }
 
 void Missile::Save(Serializer::Writer &wr, Space *space)
 {
 	Ship::Save(wr, space);
-	wr.Int32(space->GetIndexForBody(m_owner));
+	wr.Int32(space->GetIndexForBody(m_owner.Get()));
 	wr.Int32(space->GetIndexForBody(m_target));
 	wr.Double(m_distToTarget);
 	wr.Int32(m_power);
@@ -60,7 +60,7 @@ void Missile::TimeStepUpdate(const float timeStep)
 {
 	Ship::TimeStepUpdate(timeStep);
 	
-	if (!m_target || !m_owner) {
+	if (!m_target || m_owner->IsDead()) {
 		Explode();
 	} else {
 		double dist = (GetPosition() - m_target->GetPosition()).Length();
@@ -99,9 +99,9 @@ void Missile::Explode()
 		double dist = ((*i)->GetPosition() - GetPosition()).Length();
 		if (dist < damageRadius) {
 			// linear damage decay with distance
-			(*i)->OnDamage(m_owner, kgDamage * (damageRadius - dist) / damageRadius);
+			(*i)->OnDamage(m_owner.Get(), kgDamage * (damageRadius - dist) / damageRadius);
 			if ((*i)->IsType(Object::SHIP))
-				Pi::luaOnShipHit->Queue(dynamic_cast<Ship*>(*i), m_owner);
+				Pi::luaOnShipHit->Queue(dynamic_cast<Ship*>(*i), m_owner.Get());
 		}
 	}
 
@@ -110,10 +110,7 @@ void Missile::Explode()
 
 void Missile::NotifyRemoved(const Body* const removedBody)
 {
-	if (m_owner == removedBody) {
-		m_owner = 0;
-	}
-	else if (m_target == removedBody) {
+	if (m_target == removedBody) {
 		m_target = 0;
 	}
 }

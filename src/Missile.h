@@ -17,7 +17,7 @@ public:
 	virtual void NotifyRemoved(const Body* const removedBody);
 	virtual void PostLoadFixup(Space *space);
 	void ECMAttack(int power_val);
-	Body *GetOwner() const { return m_owner; }
+	Body *GetOwner() const { return m_owner.Get(); }
 protected:
 	virtual void Save(Serializer::Writer &wr, Space *space);
 	virtual void Load(Serializer::Reader &rd, Space *space);
@@ -26,7 +26,7 @@ private:
 
 	int m_power;
 	Body *m_target;
-	Body *m_owner;
+	RefCountedPtr<Body> m_owner;
 	double m_distToTarget;
 
 	int m_ownerIndex, m_targetIndex; // deserialisation
