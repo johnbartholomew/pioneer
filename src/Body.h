@@ -11,7 +11,7 @@ class Frame;
 class ObjMesh;
 class Space;
 
-class Body: public Object {
+class Body: public Object, public RefCounted {
 public:
 	OBJDEF(Body, Object, BODY);
 	Body();
