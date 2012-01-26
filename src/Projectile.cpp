@@ -20,7 +20,6 @@ Projectile::Projectile(): Body()
 	m_orient = matrix4x4d::Identity();
 	m_type = 1;
 	m_age = 0;
-	m_parent = 0;
 	m_flags |= FLAG_DRAW_LAST;
 }
 
@@ -32,7 +31,7 @@ void Projectile::Save(Serializer::Writer &wr, Space *space)
 	wr.Vector3d(m_dirVel);
 	wr.Float(m_age);
 	wr.Int32(m_type);
-	wr.Int32(space->GetIndexForBody(m_parent));
+	wr.Int32(space->GetIndexForBody(m_parent.Get()));
 }
 
 void Projectile::Load(Serializer::Reader &rd, Space *space)
@@ -48,7 +47,7 @@ void Projectile::Load(Serializer::Reader &rd, Space *space)
 
 void Projectile::PostLoadFixup(Space *space)
 {
-	m_parent = space->GetBodyByIndex(m_parentIndex);
+	m_parent.Reset(space->GetBodyByIndex(m_parentIndex));
 }
 
 void Projectile::UpdateInterpolatedTransform(double alpha)
@@ -67,11 +66,6 @@ void Projectile::SetPosition(vector3d p)
 	m_orient[12] = p.x;
 	m_orient[13] = p.y;
 	m_orient[14] = p.z;
-}
-
-void Projectile::NotifyRemoved(const Body* const removedBody)
-{
-	if (m_parent == removedBody) m_parent = 0;
 }
 
 void Projectile::TimeStepUpdate(const float timeStep)
@@ -117,7 +111,7 @@ void Projectile::StaticUpdate(const float timeStep)
 	CollisionContact c;
 	vector3d vel = m_dirVel * 0.1;
 	GetFrame()->GetCollisionSpace()->TraceRay(GetPosition(), vel.Normalized(), vel.Length(), &c, 0);
-	
+
 	if (c.userData1) {
 		Object *o = static_cast<Object*>(c.userData1);
 
@@ -127,10 +121,10 @@ void Projectile::StaticUpdate(const float timeStep)
 		else if (o->IsType(Object::BODY)) {
 			Body *hit = static_cast<Body*>(o);
 			if (hit != m_parent) {
-				hit->OnDamage(m_parent, GetDamage());
+				hit->OnDamage(m_parent.Get(), GetDamage());
 				Pi::game->GetSpace()->KillBody(this);
 				if (hit->IsType(Object::SHIP))
-					Pi::luaOnShipHit->Queue(dynamic_cast<Ship*>(hit), dynamic_cast<Body*>(m_parent));
+					Pi::luaOnShipHit->Queue(dynamic_cast<Ship*>(hit), m_parent.Get());
 			}
 		}
 	}
@@ -178,10 +172,10 @@ void Projectile::Render(const vector3d &viewCoords, const matrix4x4d &viewTransf
 void Projectile::Add(Body *parent, Equip::Type type, const vector3d &pos, const vector3d &baseVel, const vector3d &dirVel)
 {
 	Projectile *p = new Projectile();
-	p->m_parent = parent;
+	p->m_parent.Reset(parent);
 	p->m_type = Equip::types[type].tableIndex;
 	p->SetFrame(parent->GetFrame());
-	
+
 	parent->GetRotMatrix(p->m_orient);
 	p->SetPosition(pos);
 	p->m_baseVel = baseVel;
