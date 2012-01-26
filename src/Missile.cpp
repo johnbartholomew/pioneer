@@ -9,6 +9,8 @@
 
 Missile::Missile(ShipType::Type type, Body *owner, Body *target): Ship(type)
 {
+	assert(owner && target);
+
 	m_power = 0;
 	if (type == ShipType::MISSILE_GUIDED) m_power = 1;
 	if (type == ShipType::MISSILE_SMART) m_power = 2;
