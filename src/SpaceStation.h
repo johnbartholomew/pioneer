@@ -8,7 +8,6 @@
 #include "ShipFlavour.h"
 #include "Quaternion.h"
 #include "Serializer.h"
-#include "RefList.h"
 
 #define MAX_DOCKING_PORTS	4
 
