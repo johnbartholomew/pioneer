@@ -15,6 +15,7 @@ class Frame;
 class LabelSet;
 class Ship;
 class NavTunnelWidget;
+class PitchLadder;
 namespace Gui { class TexturedQuad; }
 
 class WorldView: public View {
@@ -107,6 +108,7 @@ private:
 	void MouseButtonDown(int button, int x, int y);
 
 	NavTunnelWidget *m_navTunnel;
+	PitchLadder *m_pitchLadder;
 	
 	Gui::ImageButton *m_hyperspaceButton;
 
@@ -169,6 +171,23 @@ public:
 
 private:
 	WorldView *m_worldView;
+};
+
+class PitchLadder : public Gui::Widget {
+public:
+	PitchLadder();
+	virtual ~PitchLadder();
+
+	void Update(const Camera *camera);
+	virtual void Draw();
+	virtual void GetSizeRequested(float size[2]);
+
+private:
+	void AddHorizonLine(const Camera *camera, const vector3d &pos, const vector2f &sideDir);
+	void AddPositiveRung(const Camera *camera, const vector3d &pos, const vector2f &sideDir);
+	void AddNegativeRung(const Camera *camera, const vector3d &pos, const vector2f &sideDir);
+
+	std::vector<vector2f> m_vertices;
 };
 
 #endif /* _WORLDVIEW_H */

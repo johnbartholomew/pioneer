@@ -59,6 +59,9 @@ void WorldView::InitObject()
 	m_navTunnel = new NavTunnelWidget(this);
 	Add(m_navTunnel, 0, 0);
 
+	m_pitchLadder = new PitchLadder;
+	Add(m_pitchLadder, 0, 0);
+
 	m_commsOptions = new Fixed(size[0], size[1]/2);
 	m_commsOptions->SetTransparency(true);
 	Add(m_commsOptions, 10, 200);
@@ -757,6 +760,7 @@ void WorldView::Update()
 	m_activeCamera->UpdateTransform();
 	m_activeCamera->Update();
 	UpdateProjectedObjects();
+	m_pitchLadder->Update(m_activeCamera);
 }
 
 void WorldView::OnSwitchTo()
@@ -1692,4 +1696,105 @@ void NavTunnelWidget::DrawTargetGuideSquare(const vector2f &pos, const float siz
 void NavTunnelWidget::GetSizeRequested(float size[2]) {
 	size[0] = Gui::Screen::GetWidth();
 	size[1] = Gui::Screen::GetHeight();
+}
+
+PitchLadder::PitchLadder() {}
+PitchLadder::~PitchLadder() {}
+
+void PitchLadder::Update(const Camera *camera)
+{
+	matrix4x4d camRot = camera->GetFrame()->GetTransform();
+	camRot.ClearToRotOnly();
+
+	const matrix4x4d shipPose = camera->GetBody()->GetInterpolatedTransform();
+
+	const vector3d upDir = (shipPose.GetTranslate() * camRot).NormalizedSafe();
+
+	const vector3d horizonSide = vector3d(0.0, 0.0, -1.0).Cross(upDir).Normalized();
+	const vector3d horizonFwd = upDir.Cross(horizonSide).Normalized();
+
+	// note: camera space has +ve Y up, gui screen space has +ve Y down
+	const vector2f screenSideDir = vector2f(upDir.y, upDir.x).Normalized();
+
+	m_vertices.clear();
+
+	// mark the pitch ladder at 10-degree increments
+	AddHorizonLine(camera, horizonFwd, screenSideDir);
+	const int numMarks = 9;
+	for (int i = 1; i < numMarks; ++i) {
+		double angle = ((2.0*M_PI) * i) / 36.0; // 10-degree increments
+		AddPositiveRung(camera, horizonFwd*cos(angle) + upDir*sin(angle), screenSideDir);
+		AddNegativeRung(camera, horizonFwd*cos(angle) - upDir*sin(angle), screenSideDir);
+	}
+}
+
+void PitchLadder::Draw()
+{
+	// XXX this colour appears in a few places; it should be shared properly
+	const Color hudGreen = Color(0.f, 1.f, 0.f, 0.8f);
+	// XXX global renderer, probably bad
+	Pi::renderer->DrawLines2D(m_vertices.size(), &m_vertices[0], hudGreen);
+}
+
+void PitchLadder::GetSizeRequested(float size[2])
+{
+	size[0] = Gui::Screen::GetWidth();
+	size[1] = Gui::Screen::GetHeight();
+}
+
+void PitchLadder::AddHorizonLine(const Camera *camera, const vector3d &pos, const vector2f &sideDir) {
+	const int guiSize[2] = { Gui::Screen::GetWidth(), Gui::Screen::GetHeight() };
+	const Graphics::Frustum frustum = camera->GetFrustum();
+
+	const float HorizonLineExtent = 100.0f;
+
+	vector3d screenPt;
+	project_to_screen(pos, screenPt, frustum, guiSize);
+	const vector2f extent = sideDir * HorizonLineExtent;
+	const vector2f c = vector2f(screenPt.x, screenPt.y);
+
+	m_vertices.push_back(c - extent);
+	m_vertices.push_back(c + extent);
+}
+
+void PitchLadder::AddPositiveRung(const Camera *camera, const vector3d &pos, const vector2f &sideDir) {
+	const int guiSize[2] = { Gui::Screen::GetWidth(), Gui::Screen::GetHeight() };
+	const Graphics::Frustum frustum = camera->GetFrustum();
+
+	const float RungExtent = 60.0f;
+	const float WhiskerLength = 20.0f;
+
+	vector3d screenPt;
+	project_to_screen(pos, screenPt, frustum, guiSize);
+	const vector2f extent = sideDir * RungExtent;
+	const vector2f whisker = vector2f(-sideDir.y, sideDir.x)*WhiskerLength;
+	const vector2f c = vector2f(screenPt.x, screenPt.y);
+
+	m_vertices.push_back(c - extent);
+	m_vertices.push_back(c - extent + whisker);
+	m_vertices.push_back(c - extent);
+	m_vertices.push_back(c + extent);
+	m_vertices.push_back(c + extent);
+	m_vertices.push_back(c + extent + whisker);
+}
+
+void PitchLadder::AddNegativeRung(const Camera *camera, const vector3d &pos, const vector2f &sideDir) {
+	const int guiSize[2] = { Gui::Screen::GetWidth(), Gui::Screen::GetHeight() };
+	const Graphics::Frustum frustum = camera->GetFrustum();
+
+	const float RungExtent = 60.0f;
+	const float WhiskerLength = 20.0f;
+
+	vector3d screenPt;
+	project_to_screen(pos, screenPt, frustum, guiSize);
+	const vector2f extent = sideDir * RungExtent;
+	const vector2f whisker = vector2f(-sideDir.y, sideDir.x)*WhiskerLength;
+	const vector2f c = vector2f(screenPt.x, screenPt.y);
+
+	m_vertices.push_back(c - extent);
+	m_vertices.push_back(c - extent - whisker);
+	m_vertices.push_back(c - extent);
+	m_vertices.push_back(c + extent);
+	m_vertices.push_back(c + extent);
+	m_vertices.push_back(c + extent - whisker);
 }
