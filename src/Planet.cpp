@@ -117,24 +117,44 @@ void Planet::GenerateRings(Graphics::Renderer *renderer)
 
 	m_ringVertices.Clear();
 
+	// XXX issue #1439 test code
+	const bool TEXTURE_NO_REPEAT = Pi::config->Int("TestRingTextureNoRepeat");
+
 	// generate the ring geometry
 	const float inner = sbody->m_rings.minRadius.ToFloat();
 	const float outer = sbody->m_rings.maxRadius.ToFloat();
 	int segments = 200;
-	for (int i = 0; i < segments; ++i) {
+	for (int i = 0; i <= segments; ++i) {
 		const float a = (2.0f*float(M_PI)) * (float(i) / float(segments));
 		const float ca = cosf(a);
 		const float sa = sinf(a);
-		m_ringVertices.Add(vector3f(inner*sa, 0.0f, inner*ca), vector2f(float(i), 0.0f));
-		m_ringVertices.Add(vector3f(outer*sa, 0.0f, outer*ca), vector2f(float(i), 1.0f));
+		// XXX issue #1439 test code
+		const float texU = TEXTURE_NO_REPEAT ? float(i & 1) : float(i);
+		m_ringVertices.Add(vector3f(inner*sa, 0.0f, inner*ca), vector2f(texU, 0.0f));
+		m_ringVertices.Add(vector3f(outer*sa, 0.0f, outer*ca), vector2f(texU, 1.0f));
 	}
-	m_ringVertices.Add(vector3f(0.0f, 0.0f, inner), vector2f(float(segments), 0.0f));
-	m_ringVertices.Add(vector3f(0.0f, 0.0f, outer), vector2f(float(segments), 1.0f));
+
+	// XXX issue #1439 test code
+	const int RING_TEXTURE_WIDTH = Clamp(Pi::config->Int("TestRingTextureWidth"), 1, 64);
 
 	// generate the ring texture
-	const int RING_TEXTURE_LENGTH = 256;
-	ScopedMalloc<unsigned char> buf(malloc(RING_TEXTURE_LENGTH*4));
+	const int RING_TEXTURE_HEIGHT = 256;
+	ScopedMalloc<unsigned char> buf(malloc(RING_TEXTURE_WIDTH*RING_TEXTURE_HEIGHT*4));
 
+	// XXX issue #1439 test code
+	for (int j = 0; j < RING_TEXTURE_HEIGHT; ++j)
+	{
+		unsigned char* rgba = buf.Get() + 4*j*RING_TEXTURE_WIDTH;
+		for (int i = 0; i < RING_TEXTURE_WIDTH; ++i, rgba += 4)
+		{
+			rgba[0] = j;
+			rgba[1] = 0;
+			rgba[2] = Clamp((i*256) / RING_TEXTURE_WIDTH, 0, 255);
+			rgba[3] = 255;
+		}
+	}
+
+#if 0
 	const float ringScale = (outer-inner)*sbody->GetRadius() / 1.5e7f;
 
 	MTRand rng(GetSystemBody()->seed+4609837);
@@ -163,10 +183,16 @@ void Planet::GenerateRings(Graphics::Renderer *renderer)
 		rgba = buf.Get() + (RING_TEXTURE_LENGTH-1)*4;
 		rgba[0] = rgba[1] = rgba[2] = rgba[3] = 0;
 	}
+#endif
 
-	const vector2f texSize(1.0f, RING_TEXTURE_LENGTH);
+	// XXX issue #1439 test code
+	const bool generate_mipmaps = Pi::config->Int("TestRingTextureUseMipmaps");
+	const Graphics::TextureSampleMode TEXTURE_WRAP_MODE =
+		TEXTURE_NO_REPEAT ? Graphics::LINEAR_CLAMP : Graphics::LINEAR_REPEAT;
+
+	const vector2f texSize(RING_TEXTURE_WIDTH, RING_TEXTURE_HEIGHT);
 	const Graphics::TextureDescriptor texDesc(
-			Graphics::TEXTURE_RGBA, texSize, Graphics::LINEAR_REPEAT, true);
+			Graphics::TEXTURE_RGBA, texSize, TEXTURE_WRAP_MODE, generate_mipmaps);
 
 	m_ringTexture.Reset(renderer->CreateTexture(texDesc));
 	m_ringTexture->Update(

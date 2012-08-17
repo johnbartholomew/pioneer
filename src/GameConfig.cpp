@@ -37,5 +37,10 @@ GameConfig::GameConfig(const std::string &filename) : IniConfig(filename)
 	m_map["RedirectStdio"] = "0";
 #endif
 
+	// XXX issue #1439 test code
+	m_map["TestRingTextureNoRepeat"] = "0";
+	m_map["TestRingTextureWidth"] = "16";
+	m_map["TestRingTextureUseMipmaps"] = "1";
+
 	Load();
 }
