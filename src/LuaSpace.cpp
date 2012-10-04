@@ -241,6 +241,85 @@ static int l_space_spawn_ship_near(lua_State *l)
 }
 
 /*
+ * Function: SpawnShipInOrbit
+ *
+ * Create a ship and place it in an orbit around <Body>. For explanations of the
+ * orbital parameters, see http://en.wikipedia.org/wiki/Orbital_parameters
+ *
+ * > ship = Space.SpawnShipInOrbit(type, body, min, max)
+ * > ship = Space.SpawnShipInOrbit(type, body, parameters)
+ *
+ * Parameters:
+ *
+ *   type - the name of the ship
+ *
+ *   body - the <Body> which the ship should orbit
+ *
+ *   min - minimum orbit distance (periapsis) in Km
+ *
+ *   max - maximum orbit distance (apoapsis); optional, defaults to periapsis
+ *
+ *   parameters - a table of orbital parameters. Supported parameters are:
+ *
+ *       - `apoapsis' in Km
+ *       - `periapsis' in Km
+ *       - `inclination' in radians
+ *       - `longitude' of the ascending node in radians
+ *       - `argument_of_periapsis` in radians
+ *       - `mean_anomaly'
+ *
+ * Return:
+ *
+ *   ship - a <Ship> object for the new ship
+ *
+ * Example:
+ *
+ * > -- spawn a ship in Geosynchronous orbit around Earth
+ * > local earth =
+ * > local ship = Ship.SpawnInOrbit("eye", earth, 42164)
+ *
+ * Availability:
+ *
+ *   alpha 27
+ *
+ * Status:
+ *
+ *   experimental
+ */
+static int l_space_spawn_ship_in_orbit(lua_State *l)
+{
+	if (!Pi::game)
+		luaL_error(l, "Game is not started");
+
+#if 0
+	LUA_DEBUG_START(l);
+
+	const char *type = luaL_checkstring(l, 1);
+	if (! ShipType::Get(type))
+		luaL_error(l, "Unknown ship type '%s'", type);
+
+	Body *primary = LuaBody::GetFromLua(2);
+
+	_unpack_orbital_params(l, 3);
+
+	Ship *ship = new Ship(type);
+	assert(ship);
+
+	// XXX protect against spawning inside the body
+	ship->SetFrame(primary->GetFrame());
+	ship->SetPosition();
+	ship->SetVelocity();
+	Pi::game->GetSpace()->AddBody(ship);
+
+	LuaShip::PushToLua(ship);
+
+	LUA_DEBUG_END(l, 1);
+	return 1;
+#endif
+	return 0;
+}
+
+/*
  * Function: SpawnShipDocked
  *
  * Create a ship and place it inside the given <SpaceStation>.

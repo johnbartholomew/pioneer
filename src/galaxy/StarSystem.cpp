@@ -782,6 +782,7 @@ static void position_settlement_on_planet(SystemBody *b)
 	// used for orientation on planet surface
 	double r2 = r.Double(); 	// function parameter evaluation order is implementation-dependent
 	double r1 = r.Double();		// can't put two rands in the same expression
+	b->orbit.SetOrientation();
 	b->orbit.rotMatrix = matrix4x4d::RotateZMatrix(2*M_PI*r1) *
 			matrix4x4d::RotateYMatrix(2*M_PI*r2);
 }
@@ -864,38 +865,6 @@ double SystemBody::CalcSurfaceGravity() const
 	}
 }
 
-static double calc_orbital_period(double semiMajorAxis, double centralMass)
-{
-	return 2.0*M_PI*sqrt((semiMajorAxis*semiMajorAxis*semiMajorAxis)/(G*centralMass));
-}
-
-static double calc_orbital_period_gravpoint(double semiMajorAxis, double totalMass, double bodyMass)
-{
-	// variable names according to the formula in:
-	// http://en.wikipedia.org/wiki/Barycentric_coordinates_(astronomy)#Two-body_problem
-	//
-	// We have a 2-body orbital system, represented as a gravpoint (at the barycentre),
-	// plus two bodies, each orbiting that gravpoint.
-	// We need to compute the orbital period, given the semi-major axis of one body's orbit
-	// around the gravpoint, the total mass of the system, and the mass of the body.
-	//
-	// According to Kepler, the orbital period P is defined by:
-	//
-	// P = 2*pi * sqrt( a**3 / G*(M1 + M2) )
-	//
-	// where a is the semi-major axis of the orbit, M1 is the mass of the primary and M2 is
-	// the mass of the secondary. But we don't have that semi-major axis value, we have the
-	// the semi-major axis for the orbit of the secondary around the gravpoint, instead.
-	//
-	// So, this first computes the semi-major axis of the secondary's orbit around the primary,
-	// and then uses the above formula to compute the orbital period.
-	const double r1 = semiMajorAxis;
-	const double m2 = (totalMass - bodyMass);
-	const double a = r1 * totalMass / m2;
-	const double a3 = a*a*a;
-	return 2.0 * M_PI * sqrt(a3 / (G * totalMass));
-}
-
 SystemBody *StarSystem::GetBodyByPath(const SystemPath &path) const
 {
 	assert(m_path.IsSameSystem(path));
@@ -960,12 +929,9 @@ void StarSystem::CustomGetKidsOf(SystemBody *parent, const std::vector<CustomSys
 		kid->orbitalPhaseAtStart = csbody->orbitalPhaseAtStart;
 		kid->axialTilt = csbody->axialTilt;
 		kid->semiMajorAxis = csbody->semiMajorAxis;
-		kid->orbit.eccentricity = csbody->eccentricity.ToDouble();
-		kid->orbit.semiMajorAxis = csbody->semiMajorAxis.ToDouble() * AU;
-		if(parent->type == SystemBody::TYPE_GRAVPOINT) // generalize Kepler's law to multiple stars
-			kid->orbit.period = calc_orbital_period_gravpoint(kid->orbit.semiMajorAxis, parent->GetMass(), kid->GetMass());
-		else
-			kid->orbit.period = calc_orbital_period(kid->orbit.semiMajorAxis, parent->GetMass());
+		kid->orbit.SetShapeSemiMajor(csbody->semiMajorAxis.ToDouble() * AU, csbody->eccentricity.ToDouble());
+		// XXX need to do something different here to cope with gravpoint / 2-body systems
+		kid->orbit.SetPeriodFromPrimaryMass(parent->GetMass());
 		kid->orbit.orbitalPhaseAtStart = csbody->orbitalPhaseAtStart.ToDouble();
 		if (csbody->heightMapFilename.length() > 0) {
 			kid->heightMapFilename = csbody->heightMapFilename.c_str();
@@ -1690,12 +1656,9 @@ void StarSystem::MakePlanetsAround(SystemBody *primary, MTRand &rand)
 		planet->mass = mass;
 		planet->rotationPeriod = fixed(rand.Int32(1,200), 24);
 
-		planet->orbit.eccentricity = ecc.ToDouble();
-		planet->orbit.semiMajorAxis = semiMajorAxis.ToDouble() * AU;
-		if(primary->type == SystemBody::TYPE_GRAVPOINT) // generalize Kepler's law to multiple stars
-			planet->orbit.period = calc_orbital_period_gravpoint(planet->orbit.semiMajorAxis, primary->GetMass(), planet->GetMass());
-		else
-			planet->orbit.period = calc_orbital_period(planet->orbit.semiMajorAxis, primary->GetMass());
+		// XXX need to do something different here to cope with gravpoints / 2-body systems
+		planet->orbit.SetShapeSemiMajor(semiMajorAxis.ToDouble()*AU, ecc.ToDouble());
+		planet->orbit.SetPeriodFromPrimaryMass(primary->GetMass());
 
 		double r1 = rand.Double(2*M_PI);		// function parameter evaluation order is implementation-dependent
 		double r2 = rand.NDouble(5);			// can't put two rands in the same expression
@@ -2132,9 +2095,8 @@ void SystemBody::PopulateAddStations(StarSystem *system)
 		sp->semiMajorAxis = orbMinS;
 		sp->eccentricity = fixed(0);
 		sp->axialTilt = fixed(0);
-		sp->orbit.eccentricity = 0;
-		sp->orbit.semiMajorAxis = sp->semiMajorAxis.ToDouble()*AU;
-		sp->orbit.period = calc_orbital_period(sp->orbit.semiMajorAxis, this->mass.ToDouble() * EARTH_MASS);
+		sp->orbit.SetShapeSemiMajor(sp->semiMajorAxis.ToDouble()*AU);
+		sb->orbit.SetPeriodFromPrimaryMass(this->mass.ToDouble()*EARTH_MASS);
 		sp->orbit.rotMatrix = matrix4x4d::Identity();
 		children.insert(children.begin(), sp);
 		system->m_spaceStations.push_back(sp);
