@@ -1070,6 +1070,10 @@ SECTOR_COORDINATES
     Sector coordinates:
 SYSTEM_NUMBER
     System number:
+SELECTION
+	Selection
+FACTIONS
+	Factions
 NAME
     Name
 ROTATIONAL_PERIOD

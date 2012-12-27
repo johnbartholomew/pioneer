@@ -60,7 +60,7 @@ SectorView::SectorView()
 
 	m_matchTargetToSelection   = true;
 	m_selectionFollowsMovement = true;
-	m_detailBoxVisible         = DETAILBOX_INFO;
+	m_detailBoxVisible         = true;
 	m_toggledFaction           = false;
 
 	InitObject();
@@ -82,9 +82,14 @@ SectorView::SectorView(Serializer::Reader &rd)
 	m_hyperspaceTarget = SystemPath::Unserialize(rd);
 	m_matchTargetToSelection = rd.Bool();
 	m_selectionFollowsMovement = rd.Bool();
-	m_detailBoxVisible = rd.Byte();
+
+	int sel = rd.Byte();
 
 	InitObject();
+
+	m_detailBoxVisible = (sel != DETAILBOX_NONE);
+	if (m_detailBoxVisible)
+		m_viewControlPanel->SelectPage(sel - 1);
 }
 
 void SectorView::InitDefaults()
@@ -141,11 +146,13 @@ void SectorView::InitObject()
 
 	m_disk.Reset(new Graphics::Drawables::Disk(Pi::renderer, Color::WHITE, 0.2f));
 
+	m_viewControlPanel = new Gui::Tabbed();
+
 	m_infoBox = new Gui::VBox();
 	m_infoBox->SetTransparency(false);
 	m_infoBox->SetBgColor(0.05f, 0.05f, 0.12f, 0.5f);
 	m_infoBox->SetSpacing(5.0f);
-	Add(m_infoBox, 5, 5);
+	//Add(m_infoBox, 5, 5);
 
 	Gui::VBox *systemBox = new Gui::VBox();
 	Gui::HBox *hbox = new Gui::HBox();
@@ -211,6 +218,7 @@ void SectorView::InitObject()
 	systemBox->PackEnd(m_targetSystemLabels.starType);
 	systemBox->PackEnd(m_targetSystemLabels.shortDesc);
 	m_infoBox->PackEnd(systemBox);
+	m_infoBox->ShowAll();
 
 	m_onMouseButtonDown =
 		Pi::onMouseButtonDown.connect(sigc::mem_fun(this, &SectorView::MouseButtonDown));
@@ -225,8 +233,12 @@ void SectorView::InitObject()
 	m_factionBox->SetTransparency(false);
 	m_factionBox->SetBgColor(0.05f, 0.05f, 0.12f, 0.5f);
 	m_factionBox->SetSpacing(5.0f);
-	m_factionBox->HideAll();
-	Add(m_factionBox, 5, 5);
+	m_factionBox->ShowAll();
+	//Add(m_factionBox, 5, 5);
+
+	m_viewControlPanel->AddPage(new Gui::Label(Lang::SELECTION), m_infoBox);
+	m_viewControlPanel->AddPage(new Gui::Label(Lang::FACTIONS), m_factionBox);
+	Add(m_viewControlPanel, 5, 5);
 }
 
 SectorView::~SectorView()
@@ -249,7 +261,11 @@ void SectorView::Save(Serializer::Writer &wr)
 	m_hyperspaceTarget.Serialize(wr);
 	wr.Bool(m_matchTargetToSelection);
 	wr.Bool(m_selectionFollowsMovement);
-	wr.Byte(m_detailBoxVisible);
+
+	int sel = DETAILBOX_NONE;
+	if (m_detailBoxVisible)
+		sel = m_viewControlPanel->GetCurrentPage() + 1;
+	wr.Byte(sel);
 }
 
 void SectorView::OnSearchBoxKeyPress(const SDL_keysym *keysym)
@@ -604,7 +620,8 @@ void SectorView::UpdateSystemLabels(SystemLabels &labels, const SystemPath &path
 	labels.systemName->SetText(sys->GetName());
 	labels.shortDesc->SetText(sys->GetShortDescription());
 
-	if (m_detailBoxVisible == DETAILBOX_INFO) m_infoBox->ShowAll();
+	if (m_detailBoxVisible)
+		m_viewControlPanel->Show();
 }
 
 void SectorView::OnToggleFaction(Gui::ToggleButton* button, bool pressed, Faction* faction)
@@ -654,8 +671,8 @@ void SectorView::UpdateFactionToggles()
 		m_visibleFactionRows   [rowIdx]->Hide();
 	}
 
-	if  (m_detailBoxVisible == DETAILBOX_FACTION) m_factionBox->Show();
-	else                                          m_factionBox->HideAll();
+	if (m_detailBoxVisible)
+		m_viewControlPanel->Show();
 }
 
 void SectorView::DrawNearSectors(matrix4x4f modelview)
@@ -884,8 +901,12 @@ void SectorView::OnSwitchTo() {
 
 void SectorView::RefreshDetailBoxVisibility()
 {
-	if (m_detailBoxVisible != DETAILBOX_INFO)    m_infoBox->HideAll();    else m_infoBox->ShowAll();
-	if (m_detailBoxVisible != DETAILBOX_FACTION) m_factionBox->HideAll(); else UpdateFactionToggles();
+	if (m_detailBoxVisible) {
+		m_viewControlPanel->Show();
+		if (m_viewControlPanel->GetCurrentPage() == 1)
+			UpdateFactionToggles();
+	} else
+		m_viewControlPanel->Hide();
 }
 
 void SectorView::OnKeyPressed(SDL_keysym *keysym)
@@ -925,10 +946,15 @@ void SectorView::OnKeyPressed(SDL_keysym *keysym)
 
 	// cycle through the info box, the faction box, and nothing
 	if (keysym->sym == SDLK_TAB) {
-		if (m_detailBoxVisible == DETAILBOX_FACTION) m_detailBoxVisible = DETAILBOX_NONE;
-		else                                         m_detailBoxVisible++;
+		if (m_detailBoxVisible && m_viewControlPanel->GetCurrentPage() == 0)
+			m_viewControlPanel->SelectPage(1);
+		else if (m_detailBoxVisible) {
+			m_detailBoxVisible = false;
+			m_viewControlPanel->SelectPage(0);
+		}
+		else
+			m_detailBoxVisible = true;
 		RefreshDetailBoxVisibility();
-		return;
 	}
 
 	// toggle selection mode
@@ -1055,12 +1081,12 @@ void SectorView::Update()
 		m_zoomClamped = Clamp(m_zoom, 1.f, FAR_LIMIT);
 
 		// swtich between Info and Faction panels when we zoom over the threshold
-		if (m_zoom <= FAR_THRESHOLD && prevZoom > FAR_THRESHOLD && m_detailBoxVisible == DETAILBOX_FACTION) {
-			m_detailBoxVisible = DETAILBOX_INFO;
+		if (m_zoom <= FAR_THRESHOLD && prevZoom > FAR_THRESHOLD) {
+			m_viewControlPanel->SelectPage(0);
 			RefreshDetailBoxVisibility();
 		}
-		if (m_zoom > FAR_THRESHOLD && prevZoom <= FAR_THRESHOLD && m_detailBoxVisible == DETAILBOX_INFO) {
-			m_detailBoxVisible = DETAILBOX_FACTION;
+		if (m_zoom > FAR_THRESHOLD && prevZoom <= FAR_THRESHOLD) {
+			m_viewControlPanel->SelectPage(1);
 			RefreshDetailBoxVisibility();
 		}
 	}
@@ -1100,8 +1126,8 @@ void SectorView::Update()
 void SectorView::ShowAll()
 {
 	View::ShowAll();
-	if (m_detailBoxVisible != DETAILBOX_INFO)    m_infoBox->HideAll();
-	if (m_detailBoxVisible != DETAILBOX_FACTION) m_factionBox->HideAll();
+	if (m_detailBoxVisible)
+		m_viewControlPanel->Show();
 }
 
 void SectorView::MouseButtonDown(int button, int x, int y)

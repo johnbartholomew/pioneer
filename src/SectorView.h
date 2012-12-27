@@ -111,6 +111,8 @@ private:
 
 	Gui::LabelSet *m_clickableLabels;
 
+	Gui::Tabbed *m_viewControlPanel;
+
 	Gui::VBox *m_infoBox;
 
 	SystemLabels m_currentSystemLabels;
@@ -125,7 +127,7 @@ private:
 	std::vector<Gui::HBox*>         m_visibleFactionRows;
 	std::vector<Gui::ToggleButton*> m_visibleFactionToggles;
 
-	Uint8 m_detailBoxVisible;
+	bool m_detailBoxVisible;
 
 	void OnToggleFaction(Gui::ToggleButton* button, bool pressed, Faction* faction);
 
