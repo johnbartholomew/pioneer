@@ -49,6 +49,7 @@ FileSourceZip::~FileSourceZip()
 	if (!m_archive) return;
 	mz_zip_archive *zip = static_cast<mz_zip_archive*>(m_archive);
 	mz_zip_reader_end(zip);
+	std::free(m_archive);
 }
 
 static void SplitPath(const std::string &path, std::vector<std::string> &output)
