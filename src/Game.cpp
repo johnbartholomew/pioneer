@@ -134,8 +134,12 @@ Game::Game(Serializer::Reader &rd) :
 
 	// hyperspace clouds being brought over from the previous system
 	Uint32 nclouds = section.Int32();
-	for (Uint32 i = 0; i < nclouds; i++)
-		m_hyperspaceClouds.push_back(static_cast<HyperspaceCloud*>(Body::Unserialize(section, 0)));
+	for (Uint32 i = 0; i < nclouds; i++) {
+		HyperspaceCloud *cloud = dynamic_cast<HyperspaceCloud*>(Body::Unserialize(section, 0));
+		if (!cloud)
+			throw SavedGameCorruptException();
+		m_hyperspaceClouds.push_back(cloud);
+	}
 
 	m_time = section.Double();
 	m_state = State(section.Int32());
