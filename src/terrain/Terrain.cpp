@@ -121,15 +121,17 @@ Terrain *Terrain::InstanceTerrain(const SystemBody *body)
 				InstanceGenerator<TerrainHeightAsteroid3,TerrainColorRock>,
 				InstanceGenerator<TerrainHeightAsteroid4,TerrainColorBandedRock>
 			};
-			gi = choices[rand.Int32(COUNTOF(choices))];
+			//gi = choices[rand.Int32(COUNTOF(choices))];
+			rand.Int32(COUNTOF(choices));
+			gi = choices[1];
 			break;
 		}
 
 		case SystemBody::TYPE_PLANET_TERRESTRIAL: {
 
 			//Over-ride:
-			//gi = InstanceGenerator<TerrainHeightAsteroid3,TerrainColorRock>;
-			//break;
+			gi = InstanceGenerator<TerrainHeightRuggedDesert,TerrainColorTFGood>;
+			break;
 			// Earth-like world
 
 			if ((body->m_life > fixed(7,10)) && (body->m_volatileGas > fixed(2,10))) {
