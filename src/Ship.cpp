@@ -310,18 +310,12 @@ bool Ship::OnDamage(Object *attacker, float kgDamage)
 			if (attacker) {
 				if (attacker->IsType(Object::BODY))
 					LuaEvent::Queue("onShipDestroyed", this, dynamic_cast<Body*>(attacker));
-
-				if (attacker->IsType(Object::SHIP))
-					Polit::NotifyOfCrime(static_cast<Ship*>(attacker), Polit::CRIME_MURDER);
 			}
 
 			Explode();
 		}
 
 		else {
-			if (attacker && attacker->IsType(Object::SHIP))
-				Polit::NotifyOfCrime(static_cast<Ship*>(attacker), Polit::CRIME_PIRACY);
-
 			if (Pi::rng.Double() < kgDamage)
 				Sfx::Add(this, Sfx::TYPE_DAMAGE);
 
@@ -812,8 +806,8 @@ void Ship::FireWeapon(int num)
 
 	m_gun[num].temperature += 0.01f;
 
-	Equip::Type t = m_equipment.Get(Equip::SLOT_LASER, num);
-	const LaserType &lt = Equip::lasers[Equip::types[t].tableIndex];
+	Equip::Type laser_equip = m_equipment.Get(Equip::SLOT_LASER, num);
+	const LaserType &lt = Equip::lasers[Equip::types[laser_equip].tableIndex];
 	m_gun[num].recharge = lt.rechargeTime;
 	vector3d baseVel = GetVelocity();
 	vector3d dirVel = lt.speed * dir.Normalized();
@@ -825,13 +819,16 @@ void Ship::FireWeapon(int num)
 				(orient == ShipType::DUAL_LASERS_VERTICAL) ? m.VectorX() : m.VectorY();
 		const vector3d sep = m_type->gunMount[num].sep * dir.Cross(orient_norm).NormalizedSafe();
 
-		Projectile::Add(this, t, pos + sep, baseVel, dirVel);
-		Projectile::Add(this, t, pos - sep, baseVel, dirVel);
+		Projectile::Add(this, laser_equip, pos + sep, baseVel, dirVel);
+		Projectile::Add(this, laser_equip, pos - sep, baseVel, dirVel);
 	}
 	else
-		Projectile::Add(this, t, pos, baseVel, dirVel);
+		Projectile::Add(this, laser_equip, pos, baseVel, dirVel);
 
-	Polit::NotifyOfCrime(this, Polit::CRIME_WEAPON_DISCHARGE);
+	// let Lua know that we've fired, so that it can handle criminal charges, etc
+	// this may need to be rate limited for performance reasons,
+	// but let's wait till we have evidence to decide that
+	LuaEvent::Queue("onShipFireLaser", this, EnumStrings::GetString("EquipType", laser_equip));
 	Sound::BodyMakeNoise(this, "Pulse_Laser", 1.0f);
 }
 

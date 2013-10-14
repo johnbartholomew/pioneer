@@ -10,6 +10,7 @@ local Event = import("Event")
 local Serializer = import("Serializer")
 local ShipDef = import("ShipDef")
 local utils = import("utils")
+local Legal = import("Legal")
 
 --[[
 	trade_ships
@@ -344,7 +345,7 @@ local spawnInitialShips = function (game_start)
 	local import_score, export_score = 0, 0
 	imports, exports = {}, {}
 	for k,v in pairs(prices) do
-		if k ~= 'RUBBISH' and k ~= 'RADIOACTIVES' and Game.system:IsCommodityLegal(k) then
+		if k ~= 'RUBBISH' and k ~= 'RADIOACTIVES' and Legal.IsCommodityLegal(Game.system, k) then
 			-- values from SystemInfoView::UpdateEconomyTab
 			if		v > 10	then
 				import_score = import_score + 2
@@ -874,7 +875,7 @@ local onGameStart = function ()
 		else
 			local prices = Game.system:GetCommodityBasePriceAlterations()
 			for k,v in pairs(prices) do
-				if k ~= 'RUBBISH' and k ~= 'RADIOACTIVES' and Game.system:IsCommodityLegal(k) then
+				if k ~= 'RUBBISH' and k ~= 'RADIOACTIVES' and Legal.IsCommodityLegal(Game.system, k) then
 					if v > 2 then
 						table.insert(imports, k)
 					elseif v < -2 then

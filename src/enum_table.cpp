@@ -137,14 +137,6 @@ const struct EnumItem ENUM_FileSystemRoot[] = {
 	{ 0, 0 },
 };
 
-const struct EnumItem ENUM_PolitCrime[] = {
-	{ "TRADING_ILLEGAL_GOODS", Polit::CRIME_TRADING_ILLEGAL_GOODS },
-	{ "WEAPON_DISCHARGE", Polit::CRIME_WEAPON_DISCHARGE },
-	{ "PIRACY", Polit::CRIME_PIRACY },
-	{ "MURDER", Polit::CRIME_MURDER },
-	{ 0, 0 },
-};
-
 const struct EnumItem ENUM_PolitEcon[] = {
 	{ "NONE", Polit::ECON_NONE },
 	{ "VERY_CAPITALIST", Polit::ECON_VERY_CAPITALIST },
@@ -441,7 +433,6 @@ const struct EnumTable ENUM_TABLES[] = {
 	{ "EquipType", ENUM_EquipType },
 	{ "DetailLevel", ENUM_DetailLevel },
 	{ "FileSystemRoot", ENUM_FileSystemRoot },
-	{ "PolitCrime", ENUM_PolitCrime },
 	{ "PolitEcon", ENUM_PolitEcon },
 	{ "PolitGovType", ENUM_PolitGovType },
 	{ "ShipFlightState", ENUM_ShipFlightState },
@@ -478,7 +469,6 @@ const struct EnumTable ENUM_TABLES_PUBLIC[] = {
 	{ "EquipType", ENUM_EquipType },
 	{ "DetailLevel", ENUM_DetailLevel },
 	{ "FileSystemRoot", ENUM_FileSystemRoot },
-	{ "PolitCrime", ENUM_PolitCrime },
 	{ "PolitEcon", ENUM_PolitEcon },
 	{ "PolitGovType", ENUM_PolitGovType },
 	{ "ShipFlightState", ENUM_ShipFlightState },

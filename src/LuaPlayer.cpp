@@ -109,36 +109,6 @@ static int l_player_add_money(lua_State *l)
 }
 
 /*
- * Method: AddCrime
- *
- * Add a crime to the player's criminal record
- *
- * > player:AddCrime(crime, fine)
- *
- * Parameters:
- *
- *   crime - a <Constants.PolitCrime> string describing the crime
- *
- *   fine - an amount to add to the player's fine
- *
- * Availability:
- *
- *   alpha 10
- *
- * Status:
- *
- *   stable
- */
-static int l_player_add_crime(lua_State *l)
-{
-	LuaObject<Player>::CheckFromLua(1); // check that the method is being called on a Player object
-	Sint64 crimeBitset = LuaConstants::GetConstantFromArg(l, "PolitCrime", 2);
-	Sint64 fine = Sint64(luaL_checknumber(l, 3) * 100.0);
-	Polit::AddCrime(crimeBitset, fine);
-	return 0;
-}
-
-/*
  * Method: GetNavTarget
  *
  * Get the player's navigation target
@@ -326,8 +296,6 @@ template <> void LuaObject<Player>::RegisterClass()
 		{ "GetMoney", l_player_get_money },
 		{ "SetMoney", l_player_set_money },
 		{ "AddMoney", l_player_add_money },
-
-		{ "AddCrime",      l_player_add_crime },
 
 		{ "GetNavTarget",    l_get_nav_target    },
 		{ "SetNavTarget",    l_set_nav_target    },

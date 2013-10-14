@@ -13,49 +13,12 @@
 
 void StationPoliceForm::OnOptionClicked(int option)
 {
-	switch (option) {
-		case 0: {
-			SpaceStation *station = Pi::player->GetDockedWith();
+	SpaceStation *station = Pi::player->GetDockedWith();
+	SetTitle(stringf(Lang::SOMEWHERE_POLICE, formatarg("station", station->GetLabel())));
+	SetFaceFlags(FaceVideoLink::ARMOUR);
+	SetFaceSeed(Random(station->GetSystemBody()->seed).Int32());
+	SetMessage(Lang::WE_HAVE_NO_BUSINESS_WITH_YOU);
 
-			SetTitle(stringf(Lang::SOMEWHERE_POLICE, formatarg("station", station->GetLabel())));
-
-			SetFaceFlags(FaceVideoLink::ARMOUR);
-			SetFaceSeed(Random(station->GetSystemBody()->seed).Int32());
-
-			Sint64 crime, fine;
-			Polit::GetCrime(&crime, &fine);
-
-			if (fine == 0) {
-				SetMessage(Lang::WE_HAVE_NO_BUSINESS_WITH_YOU);
-			}
-			else {
-				SetMessage(stringf(Lang::YOU_MUST_PAY_FINE_OF_N_CREDITS, formatarg("fine", format_money(fine))));
-				AddOption(Lang::PAY_THE_FINE_NOW, 1);
-			}
-
-			AddOption(Lang::HANG_UP, -1);
-
-			break;
-		}
-
-		case 1: {
-			Sint64 crime, fine;
-			Polit::GetCrime(&crime, &fine);
-
-			if (fine > Pi::player->GetMoney()) {
-				Pi::cpan->MsgLog()->Message("", Lang::YOU_NOT_ENOUGH_MONEY);
-				return;
-			}
-
-			Pi::player->SetMoney(Pi::player->GetMoney() - fine);
-			Polit::AddCrime(0, -fine);
-
-			Close();
-			break;
-		}
-
-		default:
-			Close();
-			break;
-	}
+	if (option)
+		Close();
 }

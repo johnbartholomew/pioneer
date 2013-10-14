@@ -1029,28 +1029,6 @@ static void PlayerRequestDockingClearance(SpaceStation *s)
 	Pi::cpan->MsgLog()->ImportantMessage(s->GetLabel(), msg);
 }
 
-static void PlayerPayFine()
-{
-	Sint64 crime, fine;
-	Polit::GetCrime(&crime, &fine);
-	if (Pi::player->GetMoney() == 0) {
-		Pi::cpan->MsgLog()->Message("", Lang::YOU_NO_MONEY);
-	} else if (fine > Pi::player->GetMoney()) {
-		Polit::AddCrime(0, -Pi::player->GetMoney());
-		Polit::GetCrime(&crime, &fine);
-		Pi::cpan->MsgLog()->Message("", stringf(
-			Lang::FINE_PAID_N_BUT_N_REMAINING,
-				formatarg("paid", format_money(Pi::player->GetMoney())),
-				formatarg("fine", format_money(fine))));
-		Pi::player->SetMoney(0);
-	} else {
-		Pi::player->SetMoney(Pi::player->GetMoney() - fine);
-		Pi::cpan->MsgLog()->Message("", stringf(Lang::FINE_PAID_N,
-				formatarg("fine", format_money(fine))));
-		Polit::AddCrime(0, -fine);
-	}
-}
-
 void WorldView::OnHyperspaceTargetChanged()
 {
 	if (Pi::player->IsHyperspaceActive()) {
@@ -1143,12 +1121,17 @@ void WorldView::UpdateCommsOptions()
 				ypos += 32;
 			}
 
-			Sint64 crime, fine;
-			Polit::GetCrime(&crime, &fine);
+			// pStation->GetSystemBody() gives us a const SystemBody*,
+			// but Polit needs a non-const SystemBody*
+			// so we go all over the place to get one
+			const SystemPath station_path = pStation->GetSystemBody()->path;
+			const StarSystem *system = Pi::game->GetSpace()->GetStarSystem().Get();
+			SystemBody *station_sbody = system->GetBodyByPath(station_path);
+			const Sint64 fine = Polit::PlayerGetFine(station_sbody);
 			if (fine) {
 				button = AddCommsOption(stringf(Lang::PAY_FINE_REMOTELY,
 							formatarg("amount", format_money(fine))), ypos, optnum++);
-				button->onClick.connect(sigc::ptr_fun(&PlayerPayFine));
+				button->onClick.connect(sigc::bind(sigc::ptr_fun(&Polit::PlayerPayFine), station_sbody, fine));
 				ypos += 32;
 			}
 		}

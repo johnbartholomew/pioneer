@@ -154,37 +154,6 @@ static int l_starsystem_get_commodity_base_price_alterations(lua_State *l)
 }
 
 /*
- * Method: IsCommodityLegal
- *
- * Determine if a given cargo item is legal for trade in this system
- *
- * > is_legal = system:IsCommodityLegal(cargo)
- *
- * Parameters:
- *
- *   cargo - a <Constants.EquipType> string for the wanted commodity
- *
- * Return:
- *
- *   is_legal - true if the commodity is legal, otherwise false
- *
- * Availability:
- *
- *   alpha 10
- *
- * Status:
- *
- *   experimental
- */
-static int l_starsystem_is_commodity_legal(lua_State *l)
-{
-	StarSystem *s = LuaObject<StarSystem>::CheckFromLua(1);
-	Equip::Type e = static_cast<Equip::Type>(LuaConstants::GetConstantFromArg(l, "EquipType", 2));
-	lua_pushboolean(l, Polit::IsCommodityLegal(s, e));
-	return 1;
-}
-
-/*
  * Method: GetNearbySystems
  *
  * Get a list of nearby <StarSystems> that match some criteria
@@ -497,7 +466,6 @@ template <> void LuaObject<StarSystem>::RegisterClass()
 		{ "GetBodyPaths", l_starsystem_get_body_paths },
 
 		{ "GetCommodityBasePriceAlterations", l_starsystem_get_commodity_base_price_alterations },
-		{ "IsCommodityLegal",                 l_starsystem_is_commodity_legal                   },
 
 		{ "GetNearbySystems", l_starsystem_get_nearby_systems },
 

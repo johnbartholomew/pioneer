@@ -8,6 +8,7 @@ local Event = import("Event")
 local NameGen = import("NameGen")
 local Rand = import("Rand")
 local Serializer = import("Serializer")
+local Legal = import("Legal")
 
 local l = Lang.GetResource("module-goodstrader")
 
@@ -87,7 +88,7 @@ end
 local onCreateBB = function (station)
 	local has_illegal_goods = false
 	for i,e in pairs(Constants.EquipType) do
-		if not Game.system:IsCommodityLegal(e) then
+		if not Legal.IsCommodityLegal(Game.system, e) then
 			has_illegal_goods = true
 		end
 	end
@@ -110,7 +111,7 @@ local onCreateBB = function (station)
 		ad.stock = {}
 		ad.price = {}
 		for i,e in pairs(Constants.EquipType) do
-			if not Game.system:IsCommodityLegal(e) then
+			if not Legal.IsCommodityLegal(Game.system, e) then
 				ad.stock[e] = Engine.rand:Integer(1,50)
 				-- going rate on the black market will be twice normal
 				ad.price[e] = ad.station:GetEquipmentPrice(e) * 2

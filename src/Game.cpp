@@ -24,7 +24,7 @@
 #include "FileSystem.h"
 #include "graphics/Renderer.h"
 
-static const int  s_saveVersion   = 68;
+static const int  s_saveVersion   = 69;
 static const char s_saveStart[]   = "PIONEER";
 static const char s_saveEnd[]     = "END";
 
@@ -46,8 +46,6 @@ Game::Game(const SystemPath &path) :
 
 	m_player->SetFrame(station->GetFrame());
 	m_player->SetDockedWith(station, 0);
-
-	Polit::Init();
 
 	CreateViews();
 }
@@ -72,8 +70,6 @@ Game::Game(const SystemPath &path, const vector3d &pos) :
 
 	m_player->SetPosition(pos);
 	m_player->SetVelocity(vector3d(0,0,0));
-
-	Polit::Init();
 
 	CreateViews();
 }
@@ -146,11 +142,6 @@ Game::Game(Serializer::Reader &rd) :
 	m_hyperspaceEndTime = section.Double();
 
 
-	// system political stuff
-	section = rd.RdSection("Polit");
-	Polit::Unserialize(section);
-
-
 	// views
 	LoadViews(rd);
 
@@ -200,12 +191,6 @@ void Game::Serialize(Serializer::Writer &wr)
 	section.Double(m_hyperspaceEndTime);
 
 	wr.WrSection("Game", section.GetData());
-
-
-	// system political data (crime etc)
-	section = Serializer::Writer();
-	Polit::Serialize(section);
-	wr.WrSection("Polit", section.GetData());
 
 
 	// views. must be saved in init order
