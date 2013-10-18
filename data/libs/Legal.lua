@@ -3,6 +3,13 @@
 
 local Character = import("Character")
 
+-- Crimes:
+--
+-- - Trading Illegal Goods
+-- - Weapon Discharge (firing a weapon within X km from a space station)
+-- - Piracy (damaging some other ship within X km from a space station)
+-- - Murder (destroying some other ship within X km from a space station)
+
 local Legal
 Legal = {
 	-- character: a Character object
