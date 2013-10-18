@@ -8,6 +8,7 @@ Legal = {
 	-- character: a Character object
 	-- station: a SystemBody object
 	GetFine = function (character, station)
+		assert(station:isa('SystemBody'))
 		return 45
 	end,
 
@@ -15,12 +16,14 @@ Legal = {
 	-- station: a SystemBody object
 	-- amount: the amount of fine to pay
 	PayFine = function (character, station, amount)
+		assert(station:isa('SystemBody'))
 		print(string.format('%s is paying a $%.2f fine at %s', character.name, amount, station.name))
 	end,
 
 	-- system: a StarSystem object
 	-- commodity: one of the EquipType constants
 	IsCommodityLegal = function (system, commodity)
+		assert(system:isa('StarSystem'))
 		return true
 	end,
 }
