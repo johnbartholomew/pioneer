@@ -33,5 +33,9 @@ Legal = {
 		assert(system:isa('StarSystem'))
 		return true
 	end,
+
+	RecordCrime = function (character, station, crime_id, fine)
+		assert(station:isa('SystemBody'))
+	end,
 }
 return Legal
