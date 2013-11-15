@@ -56,6 +56,7 @@ public:
 	vector3d GetHyperspaceExitPoint(const SystemPath &source) const;
 
 	Body *FindNearestTo(const Body *b, Object::Type t) const;
+	Body *FindNearestTo(const Body *b, Object::Type t, double max_dist) const;
 	Body *FindBodyForPath(const SystemPath *path) const;
 
 	typedef std::list<Body*>::const_iterator BodyIterator;
