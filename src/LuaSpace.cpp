@@ -663,6 +663,49 @@ static int l_space_get_bodies(lua_State *l)
 	return 1;
 }
 
+static int _space_get_nearest(lua_State *l, Object::Type type, const char *fnname)
+{
+	if (!Pi::game)
+		return luaL_error(l, "Game is not started");
+
+	if (!Pi::game->IsNormalSpace())
+		return luaL_error(l, "Space.%s only works in normal space (not hyperspace)", fnname);
+
+	Body *from = LuaObject<Body>::CheckFromLua(1);
+	const double max_dist = luaL_optnumber(l, 2, DBL_MAX);
+	Body *nearest = Pi::game->GetSpace()->FindNearestTo(from, type, max_dist);
+
+	if (nearest) {
+		LuaObject<Body>::PushToLua(nearest);
+		const double dist = nearest->GetPositionRelTo(from).Length();
+		lua_pushnumber(l, dist);
+		return 2;
+	} else {
+		lua_pushnil(l);
+		return 1;
+	}
+}
+
+static int l_space_get_nearest_ship(lua_State *l)
+{
+	return _space_get_nearest(l, Object::SHIP, "GetNearestShip");
+}
+
+static int l_space_get_nearest_station(lua_State *l)
+{
+	return _space_get_nearest(l, Object::SPACESTATION, "GetNearestStation");
+}
+
+static int l_space_get_nearest_planet(lua_State *l)
+{
+	return _space_get_nearest(l, Object::PLANET, "GetNearestPlanet");
+}
+
+static int l_space_get_nearest_star(lua_State *l)
+{
+	return _space_get_nearest(l, Object::STAR, "GetNearestStar");
+}
+
 void LuaSpace::Register()
 {
 	lua_State *l = Lua::manager->GetLuaState();
@@ -676,6 +719,11 @@ void LuaSpace::Register()
 		{ "SpawnShipParked", l_space_spawn_ship_parked },
 		{ "SpawnShipLanded", l_space_spawn_ship_landed },
 		{ "SpawnShipLandedNear", l_space_spawn_ship_landed_near },
+
+		{ "GetNearestShip",       l_space_get_nearest_ship },
+		{ "GetNearestStation",    l_space_get_nearest_station },
+		{ "GetNearestPlanet",     l_space_get_nearest_planet },
+		{ "GetNearestStar",       l_space_get_nearest_star },
 
 		{ "GetBody",   l_space_get_body   },
 		{ "GetBodies", l_space_get_bodies },
