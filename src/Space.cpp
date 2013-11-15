@@ -326,7 +326,7 @@ vector3d Space::GetHyperspaceExitPoint(const SystemPath &source) const
 Body *Space::FindNearestTo(const Body *b, Object::Type t) const
 {
 	Body *nearest = 0;
-	double dist = FLT_MAX;
+	double dist = DBL_MAX;
 	for (std::list<Body*>::const_iterator i = m_bodies.begin(); i != m_bodies.end(); ++i) {
 		if ((*i)->IsDead()) continue;
 		if ((*i)->IsType(t)) {
