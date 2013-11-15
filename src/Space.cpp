@@ -330,7 +330,7 @@ Body *Space::FindNearestTo(const Body *b, Object::Type t) const
 	for (std::list<Body*>::const_iterator i = m_bodies.begin(); i != m_bodies.end(); ++i) {
 		if ((*i)->IsDead()) continue;
 		if ((*i)->IsType(t)) {
-			double d = (*i)->GetPositionRelTo(b).Length();
+			const double d = (*i)->GetPositionRelTo(b).Length();
 			if (d < dist) {
 				dist = d;
 				nearest = *i;
