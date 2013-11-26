@@ -634,10 +634,10 @@ void Ship::UseECM()
 		const float ECM_RADIUS = 4000.0f;
 
 		Space::BodyNearList nearby;
-		Pi::game->GetSpace()->GetBodiesMaybeNear(this, ECM_RADIUS, nearby);
+		Pi::game->GetSpace()->GetBodiesMaybeNear(this, ECM_RADIUS, Object::MISSILE, nearby);
 		for (auto i = nearby.begin(); i != nearby.end(); ++i) {
+			assert((*i)->IsType(Object::MISSILE));
 			if ((*i)->GetFrame() != GetFrame()) continue;
-			if (!(*i)->IsType(Object::MISSILE)) continue;
 
 			double dist = ((*i)->GetPosition() - GetPosition()).Length();
 			if (dist < ECM_RADIUS) {
@@ -895,7 +895,7 @@ void Ship::UpdateAlertState()
 	static const double ALERT_DISTANCE = 100000.0; // 100km
 
 	Space::BodyNearList nearby;
-	Pi::game->GetSpace()->GetBodiesMaybeNear(this, ALERT_DISTANCE, nearby);
+	Pi::game->GetSpace()->GetBodiesMaybeNear(this, ALERT_DISTANCE, Object::OBJECT, nearby);
 
 	bool ship_is_near = false, ship_is_firing = false;
 	for (auto i = nearby.begin(); i != nearby.end(); ++i)

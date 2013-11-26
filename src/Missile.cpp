@@ -64,7 +64,7 @@ void Missile::TimeStepUpdate(const float timeStep)
 		Explode();
 	} else if (m_armed) {
 		Space::BodyNearList nearby;
-		Pi::game->GetSpace()->GetBodiesMaybeNear(this, MISSILE_DETECTION_RADIUS, nearby);
+		Pi::game->GetSpace()->GetBodiesMaybeNear(this, MISSILE_DETECTION_RADIUS, Object::OBJECT, nearby);
 		for (auto i = nearby.begin(); i != nearby.end(); ++i) {
 			if (*i == this) continue;
 			double dist = ((*i)->GetPosition() - GetPosition()).Length();
@@ -100,7 +100,7 @@ void Missile::Explode()
 	const double kgDamage = 10000.0;
 
 	Space::BodyNearList nearby;
-	Pi::game->GetSpace()->GetBodiesMaybeNear(this, damageRadius, nearby);
+	Pi::game->GetSpace()->GetBodiesMaybeNear(this, damageRadius, Object::OBJECT, nearby);
 	for (auto i = nearby.begin(); i != nearby.end(); ++i) {
 		if ((*i)->GetFrame() != GetFrame()) continue;
 		double dist = ((*i)->GetPosition() - GetPosition()).Length();

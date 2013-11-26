@@ -36,12 +36,12 @@ void Space::BodyNearFinder::Prepare()
 	std::sort(m_bodyDist.begin(), m_bodyDist.end());
 }
 
-void Space::BodyNearFinder::GetBodiesMaybeNear(const Body *b, double dist, BodyNearList &bodies) const
+void Space::BodyNearFinder::GetBodiesMaybeNear(const Body *b, double dist, Object::Type type, BodyNearList &bodies) const
 {
-	GetBodiesMaybeNear(b->GetPositionRelTo(m_space->GetRootFrame()), dist, bodies);
+	GetBodiesMaybeNear(b->GetPositionRelTo(m_space->GetRootFrame()), dist, type, bodies);
 }
 
-void Space::BodyNearFinder::GetBodiesMaybeNear(const vector3d &pos, double dist, BodyNearList &bodies) const
+void Space::BodyNearFinder::GetBodiesMaybeNear(const vector3d &pos, double dist, Object::Type type, BodyNearList &bodies) const
 {
 	if (m_bodyDist.empty()) return;
 
@@ -51,7 +51,8 @@ void Space::BodyNearFinder::GetBodiesMaybeNear(const vector3d &pos, double dist,
 	std::vector<BodyDist>::const_iterator max = std::upper_bound(min, m_bodyDist.end(), len+dist);
 
 	while (min != max) {
-		bodies.push_back((*min).body);
+		if (min->body->IsType(type))
+			bodies.push_back(min->body);
 		++min;
 	}
 }
