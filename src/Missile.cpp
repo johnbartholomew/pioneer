@@ -102,8 +102,7 @@ void Missile::Explode()
 	Space::BodyNearList nearby;
 	Pi::game->GetSpace()->GetBodiesMaybeNear(this, damageRadius, Object::OBJECT, nearby);
 	for (auto i = nearby.begin(); i != nearby.end(); ++i) {
-		if ((*i)->GetFrame() != GetFrame()) continue;
-		double dist = ((*i)->GetPosition() - GetPosition()).Length();
+		const double dist = (*i)->GetPositionRelTo(this).Length();
 		if (dist < damageRadius) {
 			// linear damage decay with distance
 			(*i)->OnDamage(m_owner, kgDamage * (damageRadius - dist) / damageRadius);

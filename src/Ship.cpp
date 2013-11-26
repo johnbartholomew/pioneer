@@ -637,9 +637,8 @@ void Ship::UseECM()
 		Pi::game->GetSpace()->GetBodiesMaybeNear(this, ECM_RADIUS, Object::MISSILE, nearby);
 		for (auto i = nearby.begin(); i != nearby.end(); ++i) {
 			assert((*i)->IsType(Object::MISSILE));
-			if ((*i)->GetFrame() != GetFrame()) continue;
 
-			double dist = ((*i)->GetPosition() - GetPosition()).Length();
+			const double dist = (*i)->GetPositionRelTo(this).Length();
 			if (dist < ECM_RADIUS) {
 				// increasing chance of destroying it with proximity
 				if (Pi::rng.Double() > (dist / ECM_RADIUS)) {
