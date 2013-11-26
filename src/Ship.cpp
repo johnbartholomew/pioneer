@@ -635,7 +635,7 @@ void Ship::UseECM()
 
 		Space::BodyNearList nearby;
 		Pi::game->GetSpace()->GetBodiesMaybeNear(this, ECM_RADIUS, nearby);
-		for (Space::BodyNearIterator i = nearby.begin(); i != nearby.end(); ++i) {
+		for (auto i = nearby.begin(); i != nearby.end(); ++i) {
 			if ((*i)->GetFrame() != GetFrame()) continue;
 			if (!(*i)->IsType(Object::MISSILE)) continue;
 
@@ -898,7 +898,7 @@ void Ship::UpdateAlertState()
 	Pi::game->GetSpace()->GetBodiesMaybeNear(this, ALERT_DISTANCE, nearby);
 
 	bool ship_is_near = false, ship_is_firing = false;
-	for (Space::BodyNearIterator i = nearby.begin(); i != nearby.end(); ++i)
+	for (auto i = nearby.begin(); i != nearby.end(); ++i)
 	{
 		if ((*i) == this) continue;
 		if (!(*i)->IsType(Object::SHIP) || (*i)->IsType(Object::MISSILE)) continue;

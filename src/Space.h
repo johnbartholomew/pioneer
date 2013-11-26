@@ -67,7 +67,6 @@ public:
 
 	// body finder delegates
 	typedef std::vector<Body*> BodyNearList;
-	typedef BodyNearList::iterator BodyNearIterator;
 	void GetBodiesNear(const Body *b, double dist, Object::Type type, BodyNearList &bodies) const {
 		m_bodyNearFinder.GetBodiesNear(b, dist, type, bodies);
 	}

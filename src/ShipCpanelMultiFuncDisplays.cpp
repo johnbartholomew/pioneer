@@ -226,7 +226,7 @@ void ScannerWidget::Update()
 	// collect the bodies to be displayed, and if AUTO, distances
 	Space::BodyNearList nearby;
 	Pi::game->GetSpace()->GetBodiesMaybeNear(Pi::player, SCANNER_RANGE_MAX, nearby);
-	for (Space::BodyNearIterator i = nearby.begin(); i != nearby.end(); ++i) {
+	for (auto i = nearby.begin(); i != nearby.end(); ++i) {
 		if ((*i) == Pi::player) continue;
 
 		float dist = float((*i)->GetPositionRelTo(Pi::player).Length());
