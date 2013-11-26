@@ -63,16 +63,12 @@ void Missile::TimeStepUpdate(const float timeStep)
 	if (!m_owner) {
 		Explode();
 	} else if (m_armed) {
-		Space::BodyNearList nearby;
-		Pi::game->GetSpace()->GetBodiesMaybeNear(this, MISSILE_DETECTION_RADIUS, Object::OBJECT, nearby);
-		for (auto i = nearby.begin(); i != nearby.end(); ++i) {
-			assert(*i != this);
-			double dist = ((*i)->GetPosition() - GetPosition()).Length();
-			if (dist < MISSILE_DETECTION_RADIUS) {
-				Explode();
-				break;
-			}
-		}
+		// explode if there are any objects within the missile detection radius
+		const Body *b = Pi::game->GetSpace()->FindNearestTo(this, Object::OBJECT, MISSILE_DETECTION_RADIUS);
+		assert(b != this);
+		assert(b->GetPositionRelTo(this).Length() <= MISSILE_DETECTION_RADIUS);
+		if (b)
+			Explode();
 	}
 }
 
