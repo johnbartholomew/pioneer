@@ -52,7 +52,7 @@ void Space::BodyNearFinder::GetBodiesMaybeNear(const vector3d &pos, double dist,
 
 	while (min != max) {
 		Body *b = min->body;
-		if (b != exclude && b->IsType(type))
+		if ((b != exclude) && !b->IsDead() && b->IsType(type))
 			bodies.push_back(b);
 		++min;
 	}
