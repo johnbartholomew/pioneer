@@ -899,7 +899,7 @@ void Ship::UpdateAlertState()
 
 	bool ship_is_near = false, ship_is_firing = false;
 	for (auto i = nearby.begin(); i != nearby.end(); ++i) {
-		if ((*i) == this) continue;
+		assert(*i != this);
 		if (!(*i)->IsType(Object::SHIP) || (*i)->IsType(Object::MISSILE)) continue;
 
 		const Ship *ship = static_cast<const Ship*>(*i);

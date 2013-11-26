@@ -77,7 +77,7 @@ public:
 		m_bodyNearFinder.GetBodiesMaybeNear(b, dist, type, bodies);
 	}
 	void GetBodiesMaybeNear(const vector3d &pos, double dist, Object::Type type, BodyNearList &bodies) const {
-		m_bodyNearFinder.GetBodiesMaybeNear(pos, dist, type, bodies);
+		m_bodyNearFinder.GetBodiesMaybeNear(pos, dist, type, 0, bodies);
 	}
 
 
@@ -125,7 +125,7 @@ private:
 		void Prepare();
 
 		void GetBodiesMaybeNear(const Body *b, double dist, Object::Type type, BodyNearList &bodies) const;
-		void GetBodiesMaybeNear(const vector3d &pos, double dist, Object::Type type, BodyNearList &bodies) const;
+		void GetBodiesMaybeNear(const vector3d &pos, double dist, Object::Type type, const Body *exclude, BodyNearList &bodies) const;
 		void GetBodiesNear(const Body *b, double dist, Object::Type type, BodyNearList &bodies) const;
 		void GetBodiesNear(const vector3d &pos, double dist, Object::Type type, const Body *exclude, BodyNearList &bodies) const;
 		Body *GetNearest(const Body *b, double max_dist, Object::Type type) const;

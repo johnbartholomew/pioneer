@@ -227,7 +227,7 @@ void ScannerWidget::Update()
 	Space::BodyNearList nearby;
 	Pi::game->GetSpace()->GetBodiesMaybeNear(Pi::player, SCANNER_RANGE_MAX, Object::OBJECT, nearby);
 	for (auto i = nearby.begin(); i != nearby.end(); ++i) {
-		if ((*i) == Pi::player) continue;
+		assert(*i != Pi::player);
 
 		float dist = float((*i)->GetPositionRelTo(Pi::player).Length());
 
