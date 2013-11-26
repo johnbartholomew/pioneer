@@ -898,8 +898,7 @@ void Ship::UpdateAlertState()
 	Pi::game->GetSpace()->GetBodiesMaybeNear(this, ALERT_DISTANCE, Object::OBJECT, nearby);
 
 	bool ship_is_near = false, ship_is_firing = false;
-	for (auto i = nearby.begin(); i != nearby.end(); ++i)
-	{
+	for (auto i = nearby.begin(); i != nearby.end(); ++i) {
 		if ((*i) == this) continue;
 		if (!(*i)->IsType(Object::SHIP) || (*i)->IsType(Object::MISSILE)) continue;
 
