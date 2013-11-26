@@ -8,6 +8,9 @@
 #include "galaxy/StarSystem.h"
 #include "Frame.h"
 #include "TerrainBody.h"
+#include "Game.h"
+#include "Space.h"
+#include "Pi.h"
 
 /*
  * Class: Body
@@ -341,6 +344,25 @@ static int l_body_get_ground_position(lua_State *l)
 	return 3;
 }
 
+static int _body_on_near(lua_State *l, Object::Type type)
+{
+	Body *b = LuaObject<Body>::CheckFromLua(1);
+	double dist = luaL_checknumber(l, 2);
+	luaL_checktype(l, 3, LUA_TFUNCTION);
+	Space *space = Pi::game->GetSpace();
+	return 0;
+}
+
+static int l_body_on_ship_near(lua_State *l)
+{
+	return _body_on_near(l, Object::SHIP);
+}
+
+static int l_body_on_player_near(lua_State *l)
+{
+	return _body_on_near(l, Object::PLAYER);
+}
+
 template <> const char *LuaObject<Body>::s_type = "Body";
 
 template <> void LuaObject<Body>::RegisterClass()
@@ -351,6 +373,11 @@ template <> void LuaObject<Body>::RegisterClass()
 		{ "IsDynamic",  l_body_is_dynamic  },
 		{ "DistanceTo", l_body_distance_to },
 		{ "GetGroundPosition", l_body_get_ground_position },
+
+		// triggers
+		{ "OnShipNear",   l_body_on_ship_near },
+		{ "OnPlayerNear", l_body_on_player_near },
+
 		{ 0, 0 }
 	};
 
