@@ -68,6 +68,12 @@ public:
 	// body finder delegates
 	typedef std::vector<Body*> BodyNearList;
 	typedef BodyNearList::iterator BodyNearIterator;
+	void GetBodiesNear(const Body *b, double dist, Object::Type type, BodyNearList &bodies) const {
+		m_bodyNearFinder.GetBodiesNear(b, dist, type, bodies);
+	}
+	void GetBodiesNear(const vector3d &pos, double dist, Object::Type type, BodyNearList &bodies) const {
+		m_bodyNearFinder.GetBodiesNear(pos, dist, type, 0, bodies);
+	}
 	void GetBodiesMaybeNear(const Body *b, double dist, BodyNearList &bodies) const {
 		m_bodyNearFinder.GetBodiesMaybeNear(b, dist, bodies);
 	}
@@ -121,6 +127,8 @@ private:
 
 		void GetBodiesMaybeNear(const Body *b, double dist, BodyNearList &bodies) const;
 		void GetBodiesMaybeNear(const vector3d &pos, double dist, BodyNearList &bodies) const;
+		void GetBodiesNear(const Body *b, double dist, Object::Type type, BodyNearList &bodies) const;
+		void GetBodiesNear(const vector3d &pos, double dist, Object::Type type, const Body *exclude, BodyNearList &bodies) const;
 		Body *GetNearest(const Body *b, double max_dist, Object::Type type) const;
 		Body *GetNearest(const vector3d &pos, double max_dist, Object::Type type, const Body *exclude = 0) const;
 

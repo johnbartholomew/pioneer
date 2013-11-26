@@ -56,6 +56,34 @@ void Space::BodyNearFinder::GetBodiesMaybeNear(const vector3d &pos, double dist,
 	}
 }
 
+void Space::BodyNearFinder::GetBodiesNear(
+		const Body *b, double dist, Object::Type type, BodyNearList &bodies) const
+{
+	GetBodiesNear(b->GetPositionRelTo(m_space->GetRootFrame()), dist, type, b, bodies);
+}
+
+void Space::BodyNearFinder::GetBodiesNear(
+		const vector3d &pos, double dist, Object::Type type, const Body *exclude, BodyNearList &bodies) const
+{
+	if (m_bodyDist.empty()) return;
+
+	const double origin = pos.Length();
+
+	const auto begin = std::lower_bound(m_bodyDist.begin(), m_bodyDist.end(), origin - dist);
+	const auto end = std::upper_bound(begin, m_bodyDist.end(), origin + dist);
+
+	const Frame *root = m_space->GetRootFrame();
+	const double max_sqr_len = dist*dist;
+	for (auto it = begin; it != end; ++it) {
+		Body *b = it->body;
+		if ((b == exclude) || b->IsDead() || !b->IsType(type)) continue;
+		const double d_sqr = (b->GetPositionRelTo(root) - pos).LengthSqr();
+		if (d_sqr <= max_sqr_len) {
+			bodies.push_back(b);
+		}
+	}
+}
+
 Body *Space::BodyNearFinder::GetNearest(const Body *b, double max_dist, Object::Type type) const
 {
 	return GetNearest(b->GetPositionRelTo(m_space->GetRootFrame()), max_dist, type, b);
