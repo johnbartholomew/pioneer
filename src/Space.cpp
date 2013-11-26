@@ -56,6 +56,34 @@ void Space::BodyNearFinder::GetBodiesMaybeNear(const vector3d &pos, double dist,
 	}
 }
 
+Body *Space::BodyNearFinder::GetNearest(const Body *b, double max_dist, Object::Type type) const
+{
+	return GetNearest(b->GetPositionRelTo(m_space->GetRootFrame()), max_dist, type, b);
+}
+
+Body *Space::BodyNearFinder::GetNearest(const vector3d &pos, double max_dist, Object::Type type, const Body *exclude) const
+{
+	if (m_bodyDist.empty()) return 0;
+
+	const double origin = pos.Length();
+	const auto begin = std::lower_bound(m_bodyDist.begin(), m_bodyDist.end(), origin - max_dist);
+	const auto end = std::upper_bound(begin, m_bodyDist.end(), origin + max_dist);
+
+	const Frame *root = m_space->GetRootFrame();
+	double dist = max_dist;
+	Body *best = 0;
+	for (auto it = begin; it != end; ++it) {
+		Body *b = it->body;
+		if ((b == exclude) || b->IsDead() || !b->IsType(type)) continue;
+		const double d = (b->GetPositionRelTo(root) - pos).Length();
+		if (d <= dist) {
+			best = b;
+			dist = d;
+		}
+	}
+	return best;
+}
+
 Space::Space(Game *game)
 	: m_game(game)
 	, m_frameIndexValid(false)
@@ -330,19 +358,7 @@ Body *Space::FindNearestTo(const Body *b, Object::Type t) const
 
 Body *Space::FindNearestTo(const Body *b, Object::Type t, double max_dist) const
 {
-	Body *nearest = 0;
-	double dist = max_dist;
-	for (std::list<Body*>::const_iterator i = m_bodies.begin(); i != m_bodies.end(); ++i) {
-		if ((*i)->IsDead()) continue;
-		if ((*i)->IsType(t)) {
-			const double d = (*i)->GetPositionRelTo(b).Length();
-			if (d <= dist) {
-				dist = d;
-				nearest = *i;
-			}
-		}
-	}
-	return nearest;
+	return m_bodyNearFinder.GetNearest(b, max_dist, t);
 }
 
 Body *Space::FindBodyForPath(const SystemPath *path) const

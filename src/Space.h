@@ -121,6 +121,8 @@ private:
 
 		void GetBodiesMaybeNear(const Body *b, double dist, BodyNearList &bodies) const;
 		void GetBodiesMaybeNear(const vector3d &pos, double dist, BodyNearList &bodies) const;
+		Body *GetNearest(const Body *b, double max_dist, Object::Type type) const;
+		Body *GetNearest(const vector3d &pos, double max_dist, Object::Type type, const Body *exclude = 0) const;
 
 	private:
 		struct BodyDist {
