@@ -179,6 +179,7 @@
     <ClCompile Include="..\..\src\Color.cpp" />
     <ClCompile Include="..\..\src\Colors.cpp" />
     <ClCompile Include="..\..\src\CRC32.cpp" />
+    <ClCompile Include="..\..\src\DateTime.cpp" />
     <ClCompile Include="..\..\src\DeathView.cpp" />
     <ClCompile Include="..\..\src\DynamicBody.cpp" />
     <ClCompile Include="..\..\src\EnumStrings.cpp" />
@@ -333,12 +334,12 @@
     <ClInclude Include="..\..\src\Color.h" />
     <ClInclude Include="..\..\src\Colors.h" />
     <ClInclude Include="..\..\src\CRC32.h" />
+    <ClInclude Include="..\..\src\DateTime.h" />
     <ClInclude Include="..\..\src\DeathView.h" />
     <ClInclude Include="..\..\src\DeleteEmitter.h" />
     <ClInclude Include="..\..\src\DynamicBody.h" />
     <ClInclude Include="..\..\src\EnumStrings.h" />
     <ClInclude Include="..\..\src\enum_table.h" />
-    <ClInclude Include="..\..\src\EquipSet.h" />
     <ClInclude Include="..\..\src\FaceGenManager.h" />
     <ClInclude Include="..\..\src\Factions.h" />
     <ClInclude Include="..\..\src\FileSourceZip.h" />

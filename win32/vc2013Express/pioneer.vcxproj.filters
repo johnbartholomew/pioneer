@@ -417,6 +417,9 @@
     <ClCompile Include="..\..\src\BaseSphere.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\DateTime.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\Aabb.h">
@@ -815,9 +818,6 @@
     <ClInclude Include="..\..\src\Shields.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\EquipSet.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SpeedLines.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -843,6 +843,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\matrix3x3.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DateTime.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
