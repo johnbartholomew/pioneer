@@ -1,8 +1,8 @@
 // Copyright © 2008-2018 Pioneer Developers. See AUTHORS.txt for details
 // Licensed under the terms of the GPL v3. See licenses/GPL-3.txt
 
-#ifndef _SERIALIZE_H
-#define _SERIALIZE_H
+#ifndef PIONEER_BIN_SERIALIZER_H
+#define PIONEER_BIN_SERIALIZER_H
 
 #include <string>
 #include "ByteRange.h"
@@ -80,4 +80,4 @@ namespace Serializer {
 
 }
 
-#endif /* _SERIALIZE_H */
+#endif /* PIONEER_BIN_SERIALIZER_H */

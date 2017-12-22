@@ -68,7 +68,7 @@
 #include "CollMesh.h"
 #include "graphics/Material.h"
 #include "graphics/Drawables.h"
-#include "Serializer.h"
+#include "serialization/PioneerBinSerializer.h"
 #include "DeleteEmitter.h"
 #include "json/json.h"
 #include <stdexcept>

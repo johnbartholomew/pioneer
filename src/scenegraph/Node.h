@@ -8,7 +8,7 @@
  */
 #include "libs.h"
 #include "RefCounted.h"
-#include "Serializer.h"
+#include "serialization/PioneerBinSerializer.h"
 #include "graphics/Material.h"
 #include "graphics/RenderState.h"
 

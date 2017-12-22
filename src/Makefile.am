@@ -119,7 +119,6 @@ noinst_HEADERS = \
 	SDLWrappers.h \
 	SectorView.h \
 	Sensors.h \
-	Serializer.h \
 	StringF.h \
 	StringRange.h \
 	Sfx.h \
@@ -268,7 +267,6 @@ pioneer_SOURCES	= \
 	SDLWrappers.cpp \
 	SectorView.cpp \
 	Sensors.cpp \
-	Serializer.cpp \
 	ServerAgent.cpp \
 	StringF.cpp \
 	Sfx.cpp \
@@ -314,6 +312,7 @@ pioneer_LDADD = \
 	terrain/libterrain.a \
 	ui/libui.a \
 	gameui/libgameui.a \
+	serialization/libserialization.a \
 	../contrib/PicoDDS/libpicodds.a \
 	../contrib/jenkins/libjenkins.a \
 	../contrib/json/libjson.a \
@@ -464,7 +463,6 @@ modelcompiler_SOURCES = \
 	NavLights.cpp \
 	PngWriter.cpp \
 	SDLWrappers.cpp \
-	Serializer.cpp \
 	StringF.cpp \
 	utils.cpp
 
@@ -475,6 +473,7 @@ modelcompiler_LDADD = \
 	scenegraph/libscenegraph.a \
 	collider/libcollider.a \
 	text/libtext.a \
+	serialization/libserialization.a \
 	../contrib/PicoDDS/libpicodds.a \
 	../contrib/json/libjson.a \
 	../contrib/profiler/libprofiler.a

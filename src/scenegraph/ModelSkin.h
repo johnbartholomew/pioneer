@@ -5,7 +5,7 @@
 #define SCENEGRAPH_MODELSKIN_H
 
 #include "Color.h"
-#include "Serializer.h"
+#include "serialization/PioneerBinSerializer.h"
 #include "Random.h"
 #include "LuaWrappable.h"
 #include "json/json.h"

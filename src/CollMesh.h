@@ -6,7 +6,7 @@
 #include "RefCounted.h"
 #include "Aabb.h"
 #include "collider/GeomTree.h"
-#include "Serializer.h"
+#include "serialization/PioneerBinSerializer.h"
 
 //This simply stores the collision GeomTrees
 //and AABB.

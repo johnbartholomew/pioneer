@@ -6,7 +6,7 @@
 
 #include "libs.h"
 #include "CollisionContact.h"
-#include "Serializer.h"
+#include "serialization/PioneerBinSerializer.h"
 
 struct isect_t {
 	// triIdx = -1 if no intersection

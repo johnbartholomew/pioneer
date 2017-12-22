@@ -8,7 +8,9 @@ AM_CPPFLAGS += -I$(srcdir)/.. -isystem $(top_srcdir)/contrib
 
 noinst_LIBRARIES = libserialization.a
 noinst_HEADERS = \
-	JsonUtils.h
+	JsonUtils.h \
+	PioneerBinSerializer.h
 
 libserialization_a_SOURCES = \
-	JsonUtils.cpp
+	JsonUtils.cpp \
+	PioneerBinSerializer.cpp
