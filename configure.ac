@@ -433,6 +433,7 @@ AC_CONFIG_FILES([
 	src/graphics/gl2/Makefile
 	src/graphics/opengl/Makefile
 	src/graphics/dummy/Makefile
+	src/serialization/Makefile
 	src/scenegraph/Makefile
 	src/galaxy/Makefile
 	src/terrain/Makefile
