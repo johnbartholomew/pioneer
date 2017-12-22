@@ -81,7 +81,6 @@ noinst_HEADERS = \
 	LuaPiGui.h \
 	LuaPushPull.h \
 	LuaRef.h \
-	LuaSerializer.h \
 	LuaShipDef.h \
 	LuaServerAgent.h \
 	LuaSpace.h \
@@ -235,7 +234,6 @@ pioneer_SOURCES	= \
 	LuaServerAgent.cpp \
 	LuaSystemBody.cpp \
 	LuaSystemPath.cpp \
-	LuaSerializer.cpp \
 	LuaShip.cpp \
 	LuaShipDef.cpp \
 	LuaSpace.cpp \
@@ -385,7 +383,6 @@ uitest_SOURCES = \
 	LuaConstants.cpp \
 	LuaRef.cpp \
 	LuaPropertiedObject.cpp \
-	LuaSerializer.cpp \
 	PngWriter.cpp \
 	EnumStrings.cpp \
 	PropertyMap.cpp \
@@ -399,6 +396,7 @@ uitest_LDADD = \
 	graphics/opengl/libgraphicsopengl.a \
 	graphics/gl2/libgraphicsgl2.a \
 	posix/libposix.a \
+	serialization/libserialization.a \
 	../contrib/jenkins/libjenkins.a \
 	../contrib/PicoDDS/libpicodds.a \
 	../contrib/json/libjson.a \

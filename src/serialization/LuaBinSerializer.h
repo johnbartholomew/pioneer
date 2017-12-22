@@ -1,8 +1,8 @@
 // Copyright © 2008-2018 Pioneer Developers. See AUTHORS.txt for details
 // Licensed under the terms of the GPL v3. See licenses/GPL-3.txt
 
-#ifndef _LUASERIALIZER_H
-#define _LUASERIALIZER_H
+#ifndef LUA_BIN_SERIALIZER_H
+#define LUA_BIN_SERIALIZER_H
 
 #include "LuaManager.h"
 #include "LuaObject.h"

@@ -3,7 +3,7 @@
 
 #include "PropertyMap.h"
 #include "LuaUtils.h"
-#include "LuaSerializer.h"
+#include "serialization/LuaBinSerializer.h"
 
 PropertyMap::PropertyMap(LuaManager *lua)
 {

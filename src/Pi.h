@@ -9,7 +9,7 @@
 #include "Random.h"
 #include "gameconsts.h"
 #include "GameConfig.h"
-#include "LuaSerializer.h"
+#include "serialization/LuaBinSerializer.h"
 #include "LuaTimer.h"
 #include "CargoBody.h"
 #include "Space.h"
