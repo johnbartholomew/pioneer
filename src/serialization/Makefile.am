@@ -8,11 +8,13 @@ AM_CPPFLAGS += -I$(srcdir)/.. -isystem $(top_srcdir)/contrib
 
 noinst_LIBRARIES = libserialization.a
 noinst_HEADERS = \
+	GZipFormat.h \
 	JsonUtils.h \
-	PioneerBinSerializer.h \
-	LuaBinSerializer.h
+	LuaBinSerializer.h \
+	PioneerBinSerializer.h
 
 libserialization_a_SOURCES = \
+	GZipFormat.cpp \
 	JsonUtils.cpp \
-	PioneerBinSerializer.cpp \
-	LuaBinSerializer.cpp
+	LuaBinSerializer.cpp \
+	PioneerBinSerializer.cpp

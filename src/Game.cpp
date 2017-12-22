@@ -22,7 +22,7 @@
 #include "LuaRef.h"
 #include "ObjectViewerView.h"
 #include "FileSystem.h"
-#include "GZipFormat.h"
+#include "serialization/GZipFormat.h"
 #include "graphics/Renderer.h"
 #include "ui/Context.h"
 #include "galaxy/GalaxyGenerator.h"
