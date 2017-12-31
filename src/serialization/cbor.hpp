@@ -48,9 +48,8 @@ namespace cbor {
 	// You can implement overloads of this function for other types to make the
 	// structured writer classes support them.
 	namespace encode {
-
-        // Specialize this template for types you want to add support for...
-        template<typename T>
+		// Specialize this template for types you want to add support for...
+		template<typename T>
 		void Value(std::ostream &ss, const T &v);
 
 		void Value(std::ostream &ss, int v);
@@ -74,19 +73,6 @@ namespace cbor {
 		void ArrayBegin(std::ostream &ss, size_t count);
 		void ArrayBegin(std::ostream &ss);
 	}
-
-    class Encoder {
-    public:
-        Encoder(std::ostream &s): stream(s) {}
-
-        template <typename T>
-        const Encoder &operator<<(const T &v) const {
-            encode::Value(stream, v);
-            return *this;
-        }
-
-        std::ostream &stream;
-    };
 
 	class WriterBase;
 	class SingleValueWriter;
@@ -148,8 +134,6 @@ namespace cbor {
 			from.m_stream = nullptr;
 		}
 
-		std::ostream &stream() { assert(m_stream); return *m_stream; }
-
 	protected:
 		explicit WriterBase(std::ostream &stream): m_parent(nullptr), m_stream(&stream) {}
 
@@ -160,12 +144,14 @@ namespace cbor {
 			from.m_stream = nullptr;
 		}
 
-        detail::MustWriteSingleValue SubValue() {
+		detail::MustWriteSingleValue SubValue() {
 			assert(m_stream);
 			std::ostream *p = m_stream;
 			m_stream = nullptr;
 			return detail::MustWriteSingleValue(this, p);
 		}
+
+		std::ostream &stream() { assert(m_stream); return *m_stream; }
 
 	private:
 		friend class detail::MustWriteSingleValue;
@@ -192,9 +178,9 @@ namespace cbor {
 	class SingleValueWriter : public WriterBase {
 	public:
 		explicit SingleValueWriter(detail::MustWriteSingleValue &&v):
-            WriterBase(std::move(v)), m_written(false) {}
+			WriterBase(std::move(v)), m_written(false) {}
 		explicit SingleValueWriter(std::ostream &ss):
-            WriterBase(ss), m_written(false) {}
+			WriterBase(ss), m_written(false) {}
 		~SingleValueWriter() {
 			assert(m_written);
 			if (!m_written) { encode::Value(stream(), undefined); }
@@ -203,22 +189,25 @@ namespace cbor {
 		template <typename ValueT>
 		void Put(const ValueT &v) {
 			assert(!m_written);
-            using namespace cbor::encode;
-			Value(stream(), v);
+			cbor::encode::Value(stream(), v);
 			m_written = true;
 		}
 
-        detail::MustWriteSingleValue Value() { return SubValue(); }
+		detail::MustWriteSingleValue Value() {
+			assert(!m_written);
+			m_written = true;
+			return SubValue();
+		}
 
 	private:
 		bool m_written;
 	};
 
-	class TaggedWriter : public SingleValueWriter {
+	class TagWriter : public SingleValueWriter {
 	public:
-		explicit TaggedWriter(detail::MustWriteSingleValue &&v, Tag tag_value):
+		explicit TagWriter(detail::MustWriteSingleValue &&v, Tag tag_value):
 			SingleValueWriter(std::move(v)) { encode::TagBegin(stream(), tag_value); }
-		explicit TaggedWriter(std::ostream &ss, Tag tag_value):
+		explicit TagWriter(std::ostream &ss, Tag tag_value):
 			SingleValueWriter(ss) { encode::TagBegin(stream(), tag_value); }
 	};
 
@@ -233,17 +222,15 @@ namespace cbor {
 		template <typename ValueT>
 		void Put(const char *k, const ValueT &v) {
 			auto &s = stream();
-            using cbor::encode::Value;
-			Value(s, StringSlice(k));
-			Value(s, v);
+			cbor::encode::Value(s, StringSlice(k));
+			cbor::encode::Value(s, v);
 		}
 
 		template <typename KeyT, typename ValueT>
 		void Put(const KeyT &k, const ValueT &v) {
 			auto &s = stream();
-            using cbor::encode::Value;
-			Value(s, k);
-			Value(s, v);
+			cbor::encode::Value(s, k);
+			cbor::encode::Value(s, v);
 		}
 
 		detail::MustWriteSingleValue Entry(const char *k) {
@@ -253,8 +240,7 @@ namespace cbor {
 
 		template <typename KeyT>
 		detail::MustWriteSingleValue Entry(const KeyT &k) {
-            using cbor::encode::Value;
-			Value(stream(), k);
+			cbor::encode::Value(stream(), k);
 			return SubValue();
 		}
 	};
@@ -269,105 +255,99 @@ namespace cbor {
 
 		template <typename ValueT>
 		void Put(const ValueT &v) {
-            using cbor::encode::Value;
-            Value(stream(), v);
-            //Encoder(stream()) << v;
-        }
+			cbor::encode::Value(stream(), v);
+		}
 
 		detail::MustWriteSingleValue Entry() { return SubValue(); }
 	};
 
 	class Atom {
-		public:
-			enum AtomType {
-				EndOfStream,
-				ErrorTruncated,
-				ErrorInvalid,
-				ErrorOutOfRange,
+	public:
+		enum AtomType {
+			EndOfStream,
+			ErrorTruncated,
+			ErrorInvalid,
+			ErrorOutOfRange,
 
-                FIRST_ERROR = ErrorTruncated,
-                LAST_ERROR = ErrorOutOfRange,
+			FIRST_ERROR = ErrorTruncated,
+			LAST_ERROR = ErrorOutOfRange,
 
-				Bool,
-				Null,
-				Undefined,
-				SequenceTerminator,
-				Integer,
-				Float,
-				Tag,
-				String,
-				Bytes,
-				Array,
-				Map,
-			};
+			Bool,
+			Null,
+			Undefined,
+			SequenceTerminator,
+			Integer,
+			Float,
+			Tag,
+			String,
+			Bytes,
+			Array,
+			Map,
+		};
 
-			AtomType type() const;
+		AtomType type() const;
 
-			bool isError() const;
-			bool isEOF() const;
-			bool isValue() const;  // Anything except EndOfStream or an error code.
-			bool isBool() const;
-			bool isNull() const;
-			bool isUndefined() const;
-			bool isSequenceTerminator() const;
-			bool isMap() const;
-			bool isArray() const;
-			bool isTag() const;
-			bool isInteger() const;
-			bool isFloat() const;
-			bool isNumber() const;	// Integer or Float.
-			bool isString() const;
-			bool isBytes() const;
-			bool isKnownLength() const;
+		bool isError() const;
+		bool isEOF() const;
+		bool isValue() const;  // Anything except EndOfStream or an error code.
+		bool isBool() const;
+		bool isNull() const;
+		bool isUndefined() const;
+		bool isSequenceTerminator() const;
+		bool isMap() const;
+		bool isArray() const;
+		bool isTag() const;
+		bool isInteger() const;
+		bool isFloat() const;
+		bool isNumber() const;	// Integer or Float.
+		bool isString() const;
+		bool isBytes() const;
+		bool isKnownLength() const;
 
-		private:
-            AtomType m_type;
-			uint8_t m_initial;
-			union {
-				uint64_t ui;
-                int64_t si;
-                float f32;
-                double f64;
-			} m_additional;
+	private:
+		AtomType m_type;
+		uint8_t m_initial;
+		union {
+			uint64_t ui;
+			int64_t si;
+			float f32;
+			double f64;
+		} m_additional;
 	};
 
-    inline Atom::AtomType Atom::type() const { return m_type; }
-    inline bool Atom::isError() const {
-        return (m_type >= FIRST_ERROR) && (m_type <= AtomType::LAST_ERROR);
-    }
-    inline bool Atom::isEOF() const { return m_type == EndOfStream; }
-    inline bool Atom::isValue() const { return m_type > AtomType::LAST_ERROR; }
-    inline bool Atom::isBool() const { return m_type == Bool; }
-    inline bool Atom::isNull() const { return m_type == Null; }
-    inline bool Atom::isUndefined() const { return m_type == Undefined; }
-    inline bool Atom::isSequenceTerminator() const { return m_type == SequenceTerminator; }
-    inline bool Atom::isMap() const { return m_type == Map; }
-    inline bool Atom::isArray() const { return m_type == Array; }
-    inline bool Atom::isTag() const { return m_type == Tag; }
-    inline bool Atom::isInteger() const { return m_type == Integer; }
-    inline bool Atom::isFloat() const { return m_type == Float; }
-    inline bool Atom::isNumber() const { return m_type == Float || m_type == Integer; }
-    inline bool Atom::isString() const { return m_type == String; }
-    inline bool Atom::isBytes() const { return m_type == Bytes; }
-    inline bool Atom::isKnownLength() const {
-        if (m_type == String || m_type == Bytes || m_type == Array || m_type == Map) {
-            return ((m_initial & 0x1F) != 31);
-        } else {
-            return true;
-        }
-    }
+	inline Atom::AtomType Atom::type() const { return m_type; }
+	inline bool Atom::isError() const {
+		return (m_type >= FIRST_ERROR) && (m_type <= AtomType::LAST_ERROR);
+	}
+	inline bool Atom::isEOF() const { return m_type == EndOfStream; }
+	inline bool Atom::isValue() const { return m_type > AtomType::LAST_ERROR; }
+	inline bool Atom::isBool() const { return m_type == Bool; }
+	inline bool Atom::isNull() const { return m_type == Null; }
+	inline bool Atom::isUndefined() const { return m_type == Undefined; }
+	inline bool Atom::isSequenceTerminator() const { return m_type == SequenceTerminator; }
+	inline bool Atom::isMap() const { return m_type == Map; }
+	inline bool Atom::isArray() const { return m_type == Array; }
+	inline bool Atom::isTag() const { return m_type == Tag; }
+	inline bool Atom::isInteger() const { return m_type == Integer; }
+	inline bool Atom::isFloat() const { return m_type == Float; }
+	inline bool Atom::isNumber() const { return m_type == Float || m_type == Integer; }
+	inline bool Atom::isString() const { return m_type == String; }
+	inline bool Atom::isBytes() const { return m_type == Bytes; }
+	inline bool Atom::isKnownLength() const {
+		if (m_type == String || m_type == Bytes || m_type == Array || m_type == Map) {
+			return ((m_initial & 0x1F) != 31);
+		} else {
+			return true;
+		}
+	}
 
-	class StreamDecoder {
+	class Decoder {
 		public:
-			explicit StreamDecoder(std::istream &stream): stream_(&stream) {}
-
-			// Raw stream access. Dangerous!
-			std::istream &stream() { return *stream_; }
+			explicit Decoder(std::istream &stream): m_stream(&stream) {}
 
 			Atom ReadAtom();
-
 		private:
-			std::istream *stream_;
+			std::istream *m_stream;
 	};
 
 	namespace {
