@@ -285,6 +285,9 @@ namespace cbor {
 				ErrorInvalid,
 				ErrorOutOfRange,
 
+                FIRST_ERROR = ErrorTruncated,
+                LAST_ERROR = ErrorOutOfRange,
+
 				Bool,
 				Null,
 				Undefined,
@@ -298,34 +301,61 @@ namespace cbor {
 				Map,
 			};
 
-			AtomType type;
+			AtomType type() const;
 
 			bool isError() const;
 			bool isEOF() const;
 			bool isValue() const;  // Anything except EndOfStream or an error code.
-
 			bool isBool() const;
 			bool isNull() const;
 			bool isUndefined() const;
+			bool isSequenceTerminator() const;
 			bool isMap() const;
 			bool isArray() const;
 			bool isTag() const;
 			bool isInteger() const;
 			bool isFloat() const;
 			bool isNumber() const;	// Integer or Float.
-			bool isIntegerNumber() const;  // Any number with an integer value.
 			bool isString() const;
 			bool isBytes() const;
 			bool isKnownLength() const;
-			bool isSequenceTerminator() const;
 
 		private:
-			uint8_t initial;
+            AtomType m_type;
+			uint8_t m_initial;
 			union {
-				uint64_t i;
-				char p[8];
-			};
+				uint64_t ui;
+                int64_t si;
+                float f32;
+                double f64;
+			} m_additional;
 	};
+
+    inline Atom::AtomType Atom::type() const { return m_type; }
+    inline bool Atom::isError() const {
+        return (m_type >= FIRST_ERROR) && (m_type <= AtomType::LAST_ERROR);
+    }
+    inline bool Atom::isEOF() const { return m_type == EndOfStream; }
+    inline bool Atom::isValue() const { return m_type > AtomType::LAST_ERROR; }
+    inline bool Atom::isBool() const { return m_type == Bool; }
+    inline bool Atom::isNull() const { return m_type == Null; }
+    inline bool Atom::isUndefined() const { return m_type == Undefined; }
+    inline bool Atom::isSequenceTerminator() const { return m_type == SequenceTerminator; }
+    inline bool Atom::isMap() const { return m_type == Map; }
+    inline bool Atom::isArray() const { return m_type == Array; }
+    inline bool Atom::isTag() const { return m_type == Tag; }
+    inline bool Atom::isInteger() const { return m_type == Integer; }
+    inline bool Atom::isFloat() const { return m_type == Float; }
+    inline bool Atom::isNumber() const { return m_type == Float || m_type == Integer; }
+    inline bool Atom::isString() const { return m_type == String; }
+    inline bool Atom::isBytes() const { return m_type == Bytes; }
+    inline bool Atom::isKnownLength() const {
+        if (m_type == String || m_type == Bytes || m_type == Array || m_type == Map) {
+            return ((m_initial & 0x1F) != 31);
+        } else {
+            return true;
+        }
+    }
 
 	class StreamDecoder {
 		public:
