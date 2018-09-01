@@ -123,12 +123,15 @@ RefCountedPtr<FileData> FileSourceZip::ReadFile(const std::string &path)
 
 	const FileStat &st = (*i).second;
 
-	char *data = static_cast<char*>(std::malloc(st.size));
+	char *data = static_cast<char*>(std::malloc(st.size + 1));  // +1 for null terminator.
+	assert(data != nullptr);
 	if (!mz_zip_reader_extract_to_mem(zip, st.index, data, st.size, 0)) {
 		Output("FileSourceZip::ReadFile: couldn't extract '%s'\n", path.c_str());
 		return RefCountedPtr<FileData>();
 	}
 
+	// Ensure null termination.
+	data[st.size] = '\0';
 	return RefCountedPtr<FileData>(new FileDataMalloc(st.info, st.size, data));
 }
 

@@ -161,7 +161,7 @@ namespace FileSystem {
 			}
 			size_t size = size_t(large_size.QuadPart);
 
-			char *data = static_cast<char*>(std::malloc(size));
+			char *data = static_cast<char*>(std::malloc(size + 1));  // +1 for null terminator.
 			if (!data) {
 				// XXX handling memory allocation failure gracefully is too hard right now
 				Output("failed when allocating buffer for '%s'\n", fullpath.c_str());
@@ -189,6 +189,8 @@ namespace FileSystem {
 
 			CloseHandle(filehandle);
 
+			// Ensure null termination.
+			data[size] = '\0';
 			return RefCountedPtr<FileData>(new FileDataMalloc(MakeFileInfo(path, FileInfo::FT_FILE, modtime), size, data));
 		}
 	}

@@ -162,7 +162,7 @@ namespace FileSystem {
 				fseek(fl, 0, SEEK_END);
 				long sz = ftell(fl);
 				fseek(fl, 0, SEEK_SET);
-				char *data = static_cast<char*>(std::malloc(sz));
+				char *data = static_cast<char*>(std::malloc(sz + 1));
 				if (!data) {
 					// XXX handling memory allocation failure gracefully is too hard right now
 					Output("failed when allocating buffer for '%s'\n", fullpath.c_str());
@@ -176,6 +176,8 @@ namespace FileSystem {
 				}
 				fclose(fl);
 
+				// Ensure null termination.
+				data[sz] = '\0';
 				return RefCountedPtr<FileData>(new FileDataMalloc(MakeFileInfo(path, ty, mtime), sz, data));
 			}
 		}

@@ -136,6 +136,13 @@ namespace FileSystem {
 		StringRange AsStringRange() const { return StringRange(m_data, m_size); }
 		ByteRange AsByteRange() const { return ByteRange(m_data, m_size); }
 
+		// This is a little dangerous; you should probably assert that the
+		// pointer you have to the FileData is unique (not shared) before using
+		// this.
+		// Note: Data is null terminated.
+		// (GetSize() does *not* include the null terminator).
+		char *GetMutableData() { return m_data; }
+
 	protected:
 		FileData(const FileInfo &info, size_t size, char *data):
 			m_info(info), m_data(data), m_size(size) {}
@@ -163,6 +170,7 @@ namespace FileSystem {
 		const std::string &GetRoot() const { return m_root; }
 
 		virtual FileInfo Lookup(const std::string &path) = 0;
+		// Returns a null RefCountedPtr<> if the file can't be found.
 		virtual RefCountedPtr<FileData> ReadFile(const std::string &path) = 0;
 		virtual bool ReadDirectory(const std::string &path, std::vector<FileInfo> &output) = 0;
 
