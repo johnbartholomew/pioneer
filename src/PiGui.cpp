@@ -449,7 +449,7 @@ void PiGui::BakeFont(PiFont &font) {
 		ImFontConfig config;
 		config.MergeMode = true;
 		float size = font.pixelsize() * face.sizefactor();
-		const std::string path = FileSystem::JoinPath(FileSystem::JoinPath(FileSystem::GetDataDir(), "fonts"), face.ttfname());
+		const std::string path = FileSystem::JoinPath("fonts", face.ttfname());
 		//		Output("- baking face %s at size %f\n", path.c_str(), size);
 		face.sortUsedRanges();
 		if(face.used_ranges().size() > 0) {
@@ -464,7 +464,27 @@ void PiGui::BakeFont(PiFont &font) {
 				gb.AddRanges(gr);
 			}
 			gb.BuildRanges(&face.m_imgui_ranges);
-			ImFont *f = io.Fonts->AddFontFromFileTTF(path.c_str(), size, imfont == nullptr ? nullptr : &config, face.m_imgui_ranges.Data);
+
+			void* ttf_data = NULL;
+			size_t ttf_data_size = 0u;
+
+			// AddFontFromMemory takes ownership of the buffer we pass it, and
+			// assumes it can be freed with ImGui::MemFree; so we load the file
+			// and then copy it into an appropriate buffer.
+			{
+				auto fileData = FileSystem::gameDataFiles.ReadFile(path);
+				if (!fileData) {
+					Error("Could not load font file '%s'\n", path.c_str());
+					return;
+				}
+				ttf_data = ImGui::MemAlloc(fileData->GetSize());
+				ttf_data_size = fileData->GetSize();
+				assert(ttf_data);
+				memcpy(static_cast<char*>(ttf_data), fileData->GetData(), fileData->GetSize());
+			}
+			assert(ttf_data != nullptr && ttf_data_size > 0u);
+
+			ImFont *f = io.Fonts->AddFontFromMemoryTTF(ttf_data, ttf_data_size, size, imfont == nullptr ? nullptr : &config, face.m_imgui_ranges.Data);
 			assert(f);
 			if(imfont != nullptr)
 				assert(f == imfont);
