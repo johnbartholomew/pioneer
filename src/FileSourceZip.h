@@ -24,6 +24,7 @@ public:
 
 private:
 	void *m_archive;
+	FILE *m_cfile;
 
 	struct FileStat {
 		FileStat(Uint32 _index, Uint64 _size, const FileInfo &_info) : index(_index), size(_size), info(_info) {}

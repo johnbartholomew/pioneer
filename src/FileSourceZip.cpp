@@ -13,15 +13,16 @@ extern "C" {
 
 namespace FileSystem {
 
-FileSourceZip::FileSourceZip(FileSourceFS &fs, const std::string &zipPath) : FileSource(zipPath), m_archive(0)
+FileSourceZip::FileSourceZip(FileSourceFS &fs, const std::string &zipPath) : FileSource(zipPath), m_archive(nullptr), m_cfile(nullptr)
 {
 	mz_zip_archive *zip = static_cast<mz_zip_archive*>(std::calloc(1, sizeof(mz_zip_archive)));
 	FILE *file = fs.OpenReadStream(zipPath);
-	if (!mz_zip_reader_init_file_stream(zip, file, 0)) {
+	if (!file || !mz_zip_reader_init_cfile(zip, file, 0, 0)) {
 		Output("FileSourceZip: unable to open '%s'\n", zipPath.c_str());
 		std::free(zip);
 		return;
 	}
+	m_cfile = file;
 
 	mz_zip_archive_file_stat zipStat;
 
@@ -48,6 +49,7 @@ FileSourceZip::~FileSourceZip()
 	if (!m_archive) return;
 	mz_zip_archive *zip = static_cast<mz_zip_archive*>(m_archive);
 	mz_zip_reader_end(zip);
+	if (m_cfile) { fclose(m_cfile); }
 }
 
 static void SplitPath(const std::string &path, std::vector<std::string> &output)

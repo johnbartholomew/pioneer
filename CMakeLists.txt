@@ -138,6 +138,7 @@ if (NOT USE_SYSTEM_LIBGLEW)
 endif (NOT USE_SYSTEM_LIBGLEW)
 add_subdirectory(contrib/imgui)
 add_subdirectory(contrib/jenkins)
+add_subdirectory(contrib/miniz)
 add_subdirectory(contrib/PicoDDS)
 add_subdirectory(contrib/profiler)
 if (NOT USE_SYSTEM_LIBLUA)
@@ -177,6 +178,7 @@ list(APPEND pioneerLibs
 	GLEW::GLEW
 	imgui
 	jenkins
+	miniz
 	picodds
 	profiler
 	pioneerLib

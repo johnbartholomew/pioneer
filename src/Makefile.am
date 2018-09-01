@@ -311,20 +311,21 @@ pioneer_SOURCES    = \
     enum_table.cpp
 
 pioneer_LDADD = \
-    collider/libcollider.a \
-    gui/libgui.a \
-    graphics/libgraphics.a \
-    graphics/opengl/libgraphicsopengl.a \
-    galaxy/libgalaxy.a \
-    scenegraph/libscenegraph.a \
-    text/libtext.a \
-    terrain/libterrain.a \
-    ui/libui.a \
-    gameui/libgameui.a \
-    ../contrib/PicoDDS/libpicodds.a \
-    ../contrib/jenkins/libjenkins.a \
-    ../contrib/profiler/libprofiler.a \
-    ../contrib/imgui/libimgui.a
+	collider/libcollider.a \
+	gui/libgui.a \
+	graphics/libgraphics.a \
+	graphics/opengl/libgraphicsopengl.a \
+	galaxy/libgalaxy.a \
+	scenegraph/libscenegraph.a \
+	text/libtext.a \
+	terrain/libterrain.a \
+	ui/libui.a \
+	gameui/libgameui.a \
+	../contrib/miniz/libminiz.a \
+	../contrib/PicoDDS/libpicodds.a \
+	../contrib/jenkins/libjenkins.a \
+	../contrib/profiler/libprofiler.a \
+	../contrib/imgui/libimgui.a
 
 pioneer_LDADD += \
     $(FREETYPE_LIBS) $(GL_LIBS) $(GLEW_LIBS) \
@@ -399,15 +400,16 @@ uitest_SOURCES = \
     enum_table.cpp \
     utils.cpp
 uitest_LDADD = \
-    ui/libui.a \
-    gui/libgui.a \
-    text/libtext.a \
-    graphics/libgraphics.a \
-    graphics/opengl/libgraphicsopengl.a \
-    posix/libposix.a \
-    ../contrib/jenkins/libjenkins.a \
-    ../contrib/PicoDDS/libpicodds.a \
-    ../contrib/profiler/libprofiler.a
+	ui/libui.a \
+	gui/libgui.a \
+	text/libtext.a \
+	graphics/libgraphics.a \
+	graphics/opengl/libgraphicsopengl.a \
+	posix/libposix.a \
+	../contrib/miniz/libminiz.a \
+	../contrib/jenkins/libjenkins.a \
+	../contrib/PicoDDS/libpicodds.a \
+	../contrib/profiler/libprofiler.a
 
 uitest_LDADD += \
     $(FREETYPE_LIBS) $(GL_LIBS) $(GLEW_LIBS) \
@@ -474,14 +476,15 @@ modelcompiler_SOURCES = \
     utils.cpp
 
 modelcompiler_LDADD = \
-    gui/libgui.a \
-    graphics/libgraphics.a \
-    graphics/dummy/libgraphicsdummy.a \
-    scenegraph/libscenegraph.a \
-    collider/libcollider.a \
-    text/libtext.a \
-    ../contrib/PicoDDS/libpicodds.a \
-    ../contrib/profiler/libprofiler.a
+	gui/libgui.a \
+	graphics/libgraphics.a \
+	graphics/dummy/libgraphicsdummy.a \
+	scenegraph/libscenegraph.a \
+	collider/libcollider.a \
+	text/libtext.a \
+	../contrib/miniz/libminiz.a \
+	../contrib/PicoDDS/libpicodds.a \
+	../contrib/profiler/libprofiler.a
 
 modelcompiler_LDADD += \
     $(FREETYPE_LIBS) \
