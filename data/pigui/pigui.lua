@@ -61,7 +61,7 @@ end
 
 local textBackgroundMarginPixels = 2
 
-ui.icons_texture = pigui:LoadTextureFromSVG(pigui.DataDirPath({"icons", "icons.svg"}), 16 * 64, 16 * 64)
+ui.icons_texture = pigui:LoadTextureFromSVG("icons/icons.svg", 16 * 64, 16 * 64)
 
 function ui.window(name, params, fun)
 	pigui.Begin(name, params)
@@ -820,7 +820,6 @@ end
 ui.loadTextureFromSVG = function(a, b, c)
 	return pigui:LoadTextureFromSVG(a, b, c)
 end
-ui.dataDirPath = pigui.DataDirPath
 ui.addImage = pigui.AddImage
 
 local modules = {}

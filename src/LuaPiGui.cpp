@@ -1333,16 +1333,6 @@ static int l_pigui_is_mouse_hovering_rect(lua_State *l) {
 	return 1;
 }
 
-static int l_pigui_data_dir_path(lua_State *l) {
-	std::string path = FileSystem::GetDataDir();
-	LuaTable pathComponents(l, 1);
-	for(LuaTable::VecIter<std::string> iter = pathComponents.Begin<std::string>(); iter != pathComponents.End<std::string>(); ++iter) {
-		path = FileSystem::JoinPath(path, *iter);
-	}
-	LuaPush(l, path);
-	return 1;
-}
-
 static int l_pigui_is_mouse_hovering_any_window(lua_State *l) {
 	LuaPush<bool>(l, ImGui::IsMouseHoveringAnyWindow());
 	return 1;
@@ -1647,7 +1637,6 @@ template <> void LuaObject<PiGui>::RegisterClass()
 		{ "CaptureMouseFromApp",    l_pigui_capture_mouse_from_app },
 		{ "ProgressBar",            l_pigui_progress_bar },
 		{ "LoadTextureFromSVG",     l_pigui_load_texture_from_svg },
-		{ "DataDirPath",            l_pigui_data_dir_path },
 		{ "ShouldDrawUI",           l_pigui_should_draw_ui },
 		{ "GetTargetsNearby",       l_pigui_get_targets_nearby },
 		{ "GetProjectedBodies",     l_pigui_get_projected_bodies },

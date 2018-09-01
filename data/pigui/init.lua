@@ -14,7 +14,7 @@ local base = Color(0,1,33)
 local highlight = Color(0,63,112)
 local transparent = Color(0,0,0,0)
 
-local logo = ui.loadTextureFromSVG(ui.dataDirPath({"icons", "logo.svg"}), 512, 512)
+local logo = ui.loadTextureFromSVG("icons/logo.svg", 512, 512)
 
 -- support minimum resolution 800x600
 local window_width = 700

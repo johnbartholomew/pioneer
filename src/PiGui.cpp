@@ -2,9 +2,9 @@
 // Licensed under the terms of the GPL v3. See licenses/GPL-3.txt
 
 #include "Pi.h"
+#include "FileSystem.h"
 #include "graphics/opengl/TextureGL.h" // nasty, usage of GL is implementation specific
 #include "PiGui.h"
-// Use GLEW instead of GL3W.
 #define IMGUI_IMPL_OPENGL_LOADER_GLEW 1
 #include "imgui/examples/imgui_impl_opengl3.h"
 #include "imgui/examples/imgui_impl_sdl.h"
@@ -19,7 +19,6 @@
 #include "nanosvg/nanosvg.h"
 #define NANOSVGRAST_IMPLEMENTATION
 #include "nanosvg/nanosvgrast.h"
-
 
 std::vector<Graphics::Texture*> PiGui::m_svg_textures;
 
@@ -79,7 +78,14 @@ ImTextureID PiGui::RenderSVG(std::string svgFilename, int width, int height) {
 	int H = height;
 	img = static_cast<unsigned char*>(malloc(W*H*4));
 	memset(img, 0, W * H * 4);
-	image = nsvgParseFromFile(svgFilename.c_str(), "px", 96.0f);
+
+	auto fileData = FileSystem::gameDataFiles.ReadFile(svgFilename);
+	if (fileData) {
+		assert(fileData.Unique());
+		image = nsvgParse(fileData->GetMutableData(), "px", 96.0f);
+	}
+	fileData.Reset();
+
 	if (image == NULL) {
 		Error("Could not open SVG image.\n");
 	}
