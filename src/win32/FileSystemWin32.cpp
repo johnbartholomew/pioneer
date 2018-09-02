@@ -16,7 +16,7 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
-// GetPiUserDir() needs these
+// FindUserDir() needs these
 #include <shlobj.h>
 #include <shlwapi.h>
 
