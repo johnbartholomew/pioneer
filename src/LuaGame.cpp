@@ -225,16 +225,12 @@ static int l_game_can_load_game(lua_State *l)
  *
  * Save the current game.
  *
- * > path = Game.SaveGame(filename)
+ * > Game.SaveGame(filename)
  *
  * Parameters:
  *
  *   filename - Filename to save to. The file will be placed the 'savefiles'
  *              directory in the user's game directory.
- *
- * Return:
- *
- *   path - the full path to the saved file (so it can be displayed)
  *
  * Availability:
  *
@@ -251,12 +247,10 @@ static int l_game_save_game(lua_State *l)
 	}
 
 	const std::string filename(luaL_checkstring(l, 1));
-	const std::string path = FileSystem::JoinPathBelow(Pi::GetSaveDir(), filename);
 
 	try {
 		Game::SaveGame(filename, Pi::game);
-		lua_pushlstring(l, path.c_str(), path.size());
-		return 1;
+		return 0;
 	}
 	catch (CannotSaveInHyperspace) {
 		return luaL_error(l, "%s", Lang::CANT_SAVE_IN_HYPERSPACE);
@@ -265,7 +259,7 @@ static int l_game_save_game(lua_State *l)
 		return luaL_error(l, "%s", Lang::CANT_SAVE_DEAD_PLAYER);
 	}
 	catch (CouldNotOpenFileException) {
-		const std::string message = stringf(Lang::COULD_NOT_OPEN_FILENAME, formatarg("path", path));
+		const std::string message = stringf(Lang::COULD_NOT_OPEN_FILENAME, formatarg("path", filename));
 		lua_pushlstring(l, message.c_str(), message.size());
 		return lua_error(l);
 	}

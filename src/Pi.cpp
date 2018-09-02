@@ -356,13 +356,6 @@ SceneGraph::Model *Pi::FindModel(const std::string &name, bool allowPlaceholder)
 	return m;
 }
 
-const char Pi::SAVE_DIR_NAME[] = "savefiles";
-
-std::string Pi::GetSaveDir()
-{
-	return FileSystem::JoinPath(FileSystem::GetUserDir(), Pi::SAVE_DIR_NAME);
-}
-
 void TestGPUJobsSupport()
 {
 	bool supportsGPUJobs = (Pi::config->Int("EnableGPUJobs") == 1);
@@ -977,12 +970,11 @@ void Pi::HandleKeyDown(SDL_Keysym *key)
 
 					else {
 						const std::string name = "_quicksave";
-						const std::string path = FileSystem::JoinPath(GetSaveDir(), name);
 						try {
 							Game::SaveGame(name, Pi::game);
-							Pi::game->log->Add(Lang::GAME_SAVED_TO + path);
+							Pi::game->log->Add(Lang::GAME_SAVED_TO + name);
 						} catch (CouldNotOpenFileException) {
-							Pi::game->log->Add(stringf(Lang::COULD_NOT_OPEN_FILENAME, formatarg("path", path)));
+							Pi::game->log->Add(stringf(Lang::COULD_NOT_OPEN_FILENAME, formatarg("path", name)));
 						}
 						catch (CouldNotWriteToFileException) {
 							Pi::game->log->Add(Lang::GAME_SAVE_CANNOT_WRITE);
