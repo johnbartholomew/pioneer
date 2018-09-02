@@ -24,20 +24,26 @@
  */
 
 namespace FileSystem {
-
 	class FileSource;
 	class FileData;
 	class FileSourceFS;
 	class FileSourceUnion;
 
+	// Different platforms follow different rules about where files should be
+	// found or written.
+	enum class KnownLocation {
+		Logs,
+		Saves,
+		Config,
+		Screenshots,
+		WritableData,
+	};
+
+	FileSourceUnion &GetDataFiles();
+	FileSourceFS &GetWritableFS(KnownLocation location);
+
 	void Init();
 	void Uninit();
-
-	extern FileSourceUnion gameDataFiles;
-	extern FileSourceFS userFiles;
-
-	std::string GetUserDir();
-	std::string GetDataDir();
 
 	/// Makes a string safe for use as a file name
 	/// warning: this mapping is non-injective, that is,
@@ -196,6 +202,9 @@ namespace FileSystem {
 
 		bool MakeDirectory(const std::string &path);
 
+		// Returns true on success.
+		bool WriteData(const std::string &path, const char *data, size_t length);
+
 		enum WriteFlags {
 			WRITE_TEXT = 1
 		};
@@ -214,9 +223,8 @@ namespace FileSystem {
 		// add and remove sources
 		// note: order is important. The array of sources works like a PATH array:
 		// that is, earlier sources take priority over later sources
-		void PrependSource(FileSource *fs);
-		void AppendSource(FileSource *fs);
-		void RemoveSource(FileSource *fs);
+		void PrependSource(std::unique_ptr<FileSource> fs);
+		void AppendSource(std::unique_ptr<FileSource> fs);
 
 		virtual FileInfo Lookup(const std::string &path);
 		std::vector<FileInfo> LookupAll(const std::string &path);
@@ -224,7 +232,7 @@ namespace FileSystem {
 		virtual bool ReadDirectory(const std::string &path, std::vector<FileInfo> &output);
 
 	private:
-		std::vector<FileSource*> m_sources;
+		std::vector<std::unique_ptr<FileSource>> m_sources;
 	};
 
 	class FileEnumerator {

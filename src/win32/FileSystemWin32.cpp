@@ -67,16 +67,14 @@ namespace FileSystem {
 		return transcode_utf16_to_utf8(buf, wcslen(buf));
 	}
 
-	std::string GetUserDir()
-	{
+	void PlatformInit() {
 		static const std::string user_path = FindUserDir();
-		return user_path;
-	}
-
-	std::string GetDataDir()
-	{
 		static const std::string data_path = FindDataDir();
-		return data_path;
+
+		gameDataFiles.AppendSource(std::unique_ptr<FileSource>(
+					new FileSourceFS(JoinPath(FindUserDir(), "data"))));
+		gameDataFiles.AppendSource(std::unique_ptr<FileSource>(
+					new FileSourceFS(FindDataDir())));
 	}
 
 	FileSourceFS::FileSourceFS(const std::string &root, bool trusted):

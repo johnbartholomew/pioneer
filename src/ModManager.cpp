@@ -9,6 +9,8 @@
 void ModManager::Init() {
 	FileSystem::userFiles.MakeDirectory("mods");
 
+	std::vector<std::string> modpaths;
+
 	for (FileSystem::FileEnumerator files(FileSystem::userFiles, "mods", 0); !files.Finished(); files.Next()) {
 		const FileSystem::FileInfo &info = files.Current();
 		const std::string &zipPath = info.GetPath();

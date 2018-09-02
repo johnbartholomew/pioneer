@@ -966,19 +966,15 @@ void Game::SaveGame(const std::string &filename, Game *game)
 		jsonData = Json::to_cbor(rootNode); // Convert the JSON data to CBOR.
 	}
 
-	FILE *f = FileSystem::userFiles.OpenWriteStream(FileSystem::JoinPathBelow(Pi::SAVE_DIR_NAME, filename));
-	if (!f) throw CouldNotOpenFileException();
-
 	try {
 		// Compress the CBOR data.
-		const std::string comressed_data = gzip::CompressGZip(
+		const std::string compressed_data = gzip::CompressGZip(
 			std::string(reinterpret_cast<const char *>(jsonData.data()), jsonData.size()),
 			filename + ".json");
-		size_t nwritten = fwrite(comressed_data.data(), comressed_data.size(), 1, f);
-		fclose(f);
-		if (nwritten != 1) throw CouldNotWriteToFileException();
+		auto &fs = FileSystem::GetWritableFS(FileSystem::KnownLocation::Saves);
+		const bool success = fs.WriteData(filename, compressed_data.data(), compressed_data.size());
+		if (!success) { throw CouldNotWriteToFileException(); }
 	} catch (gzip::CompressionFailedException) {
-		fclose(f);
 		throw CouldNotWriteToFileException();
 	}
 

@@ -11,11 +11,25 @@
 #include <stdexcept>
 
 namespace FileSystem {
+	void InitGameDataFS();  // Implemented per-platform.
+	std::string GetWritablePath(KnownLocation location);  // Implemented per-platform.
 
-	static FileSourceFS dataFilesApp(GetDataDir(), true);
-	static FileSourceFS dataFilesUser(JoinPath(GetUserDir(), "data"));
-	FileSourceUnion gameDataFiles;
-	FileSourceFS userFiles(GetUserDir());
+	static FileSourceUnion gameDataFiles;
+	static std::map<std::string, std::unique_ptr<FileSourceFS>> writableLocations;
+
+	FileSourceUnion &GetDataFiles() {
+		return gameDataFiles;
+	}
+
+	FileSourceFS &GetWritableLocation(KnownLocation location) {
+		const std::string path = GetWritablePath(location);
+		auto it = writableLocations.find(path);
+		if (it == writableLocations.end()) {
+			std::unique_ptr<FileSourceFS> fs(new FileSourceFS(path));
+			it = writableLocations.emplace(path, std::move(fs)).first;
+		}
+		return *it->second;
+	}
 
 	// note: some functions (GetUserDir(), GetDataDir()) are in FileSystem{Posix,Win32}.cpp
 	std::string SanitiseFileName(const std::string &a)
@@ -121,8 +135,7 @@ namespace FileSystem {
 
 	void Init()
 	{
-		gameDataFiles.AppendSource(&dataFilesUser);
-		gameDataFiles.AppendSource(&dataFilesApp);
+		InitGameDataFS();
 	}
 
 	void Uninit()
@@ -155,27 +168,28 @@ namespace FileSystem {
 		return MakeFileInfo(path, fileType, Time::DateTime());
 	}
 
+	bool FileSourceFS::WriteData(const std::string &path, const char *data, size_t length) {
+		FILE *f = OpenWriteStream(path);
+		if (!f) { return false; }
+		size_t nwritten = fwrite(data, length, 1, f);
+		fclose(f);
+		if (nwritten != 1) { return false; }
+		return true;
+	}
+
 	FileSourceUnion::FileSourceUnion(): FileSource(":union:") {}
 	FileSourceUnion::~FileSourceUnion() {}
 
-	void FileSourceUnion::PrependSource(FileSource *fs)
+	void FileSourceUnion::PrependSource(std::unique_ptr<FileSource> fs)
 	{
 		assert(fs);
-		RemoveSource(fs);
 		m_sources.insert(m_sources.begin(), fs);
 	}
 
-	void FileSourceUnion::AppendSource(FileSource *fs)
+	void FileSourceUnion::AppendSource(std::unique_ptr<FileSource> fs)
 	{
 		assert(fs);
-		RemoveSource(fs);
 		m_sources.push_back(fs);
-	}
-
-	void FileSourceUnion::RemoveSource(FileSource *fs)
-	{
-		std::vector<FileSource*>::iterator nend = std::remove(m_sources.begin(), m_sources.end(), fs);
-		m_sources.erase(nend, m_sources.end());
 	}
 
 	FileInfo FileSourceUnion::Lookup(const std::string &path)

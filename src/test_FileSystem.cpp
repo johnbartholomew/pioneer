@@ -90,8 +90,9 @@ void test_filesystem()
 	printf("data dir is '%s'\n", FileSystem::GetDataDir().c_str());
 	printf("user dir is '%s'\n", FileSystem::GetUserDir().c_str());
 
-	FileSourceFS fsAppData(FileSystem::GetDataDir());
-	FileSourceFS fsUserData(FileSystem::JoinPath(FileSystem::GetUserDir(), "data"));
+	std::unique_ptr<FileSourceFS> fsAppData(new FileSourceFS("data"));
+	std::unique_ptr<FileSourceFS> fsUserData(new FileSourceFS(
+			FileSystem::JoinPath(FileSystem::GetUserDir(), "data")));
 	//FileSourceZip fsZip("/home/jpab/.pioneer/mods/swapships.zip");
 
 	printf("data root is '%s'\n", fsAppData.GetRoot().c_str());
@@ -108,9 +109,5 @@ void test_filesystem()
 	//test_enum_models(fs);
 
 	//printf("With zip:\n");
-	//test_enum_models(fs);
-
-	//fs.RemoveSource(&fsZip);
-	//printf("Just data:\n");
 	//test_enum_models(fs);
 }

@@ -12,11 +12,6 @@
 #include <dirent.h>
 #include <unistd.h>
 
-// on unix this is set from configure
-#ifndef PIONEER_DATA_DIR
-#define PIONEER_DATA_DIR "data"
-#endif
-
 #ifdef _XCODE
 #include "CoreFoundation/CoreFoundation.h"
 #import <sys/param.h> /* for MAXPATHLEN */
@@ -74,8 +69,7 @@ namespace FileSystem {
         if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)appbundlepath, MAXPATHLEN))
         {
             path = appbundlepath;
-            path += '/';
-            path += PIONEER_DATA_DIR;
+            path += "/data";
         }
         CFRelease(resourcesURL);
         return path;
@@ -94,16 +88,13 @@ namespace FileSystem {
 #endif
     }
 
-	std::string GetUserDir()
-	{
-		static const std::string user_path = FindUserDir();
-		return user_path;
+	void InitGameDataFS() {
+		auto &fs = GetDataFiles();
 	}
 
-	std::string GetDataDir()
-	{
+	std::string GetWritablePath(KnownLocation location) {
+		static const std::string user_path = FindUserDir();
         static const std::string data_path = FindDataDir();
-		return data_path;
 	}
 
 	FileSourceFS::FileSourceFS(const std::string &root, bool trusted):
